@@ -13,7 +13,7 @@ const _ = require('lodash')
 // The top level export is a function that can be passed a `repoPath`
 // and optional `opts` to customize the execution of the commands.
 // This function returns the actual executer, which consists of
-// `ipfs('files get <hash>')` and `ipfs.fail('files get <hash>')`
+// `ipfs('get <hash>')` and `ipfs.fail('files get <hash>')`
 // The first one executes and asserts that the command ran successfully
 // and returns a promise which is resolved to `stdout` of the command.
 // The `.fail` variation asserts that the command exited with `Code > 0`
@@ -29,9 +29,11 @@ module.exports = (repoPath, opts) => {
   }, opts)
 
   const exec = (args) => execa(`${process.cwd()}/src/cli/bin.js`, args, config)
+  const execRaw = (args) => execa(`${process.cwd()}/src/cli/bin.js`, args, Object.assign({}, config, {
+    encoding: null
+  }))
 
-  function ipfs () {
-    let args = Array.from(arguments)
+  const execute = (exec, args) => {
     if (args.length === 1) {
       args = args[0].split(' ')
     }
@@ -49,6 +51,15 @@ module.exports = (repoPath, opts) => {
     res.stderr = cp.stderr
 
     return res
+  }
+
+  function ipfs () {
+    return execute(exec, Array.from(arguments))
+  }
+
+  // Will return buffers instead of strings
+  ipfs.raw = function () {
+    return execute(execRaw, Array.from(arguments))
   }
 
   /**

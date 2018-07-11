@@ -34,7 +34,6 @@ class IPFS extends EventEmitter {
     }
 
     options = config.validate(options || {})
-    this._libp2pModules = options.libp2p && options.libp2p.modules
 
     extend(this._options, options)
 
@@ -101,6 +100,7 @@ class IPFS extends EventEmitter {
     this.swarm = components.swarm(this)
     this.files = components.files(this)
     this.bitswap = components.bitswap(this)
+    this.pin = components.pin(this)
     this.ping = components.ping(this)
     this.pingPullStream = components.pingPullStream(this)
     this.pingReadableStream = components.pingReadableStream(this)
@@ -119,9 +119,6 @@ class IPFS extends EventEmitter {
     if (this._options.EXPERIMENTAL.dht) {
       this.log('EXPERIMENTAL Kademlia DHT is enabled')
     }
-    if (this._options.EXPERIMENTAL.relay) {
-      this.log('EXPERIMENTAL Relay is enabled')
-    }
 
     this.state = require('./state')(this)
 
@@ -135,6 +132,13 @@ class IPFS extends EventEmitter {
       crypto: crypto,
       isIPFS: isIPFS
     }
+
+    // ipfs.files
+    const mfs = components.mfs(this, this._options)
+
+    Object.keys(mfs).forEach(key => {
+      this.files[key] = mfs[key]
+    })
 
     boot(this)
   }

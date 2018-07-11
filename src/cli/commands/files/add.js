@@ -3,7 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 const glob = require('glob')
-const sortBy = require('lodash.sortby')
+const sortBy = require('lodash/sortBy')
 const pull = require('pull-stream')
 const paramap = require('pull-paramap')
 const zip = require('pull-zip')
@@ -173,6 +173,11 @@ module.exports = {
       type: 'boolean',
       default: false,
       describe: 'Write no output'
+    },
+    pin: {
+      type: 'boolean',
+      default: true,
+      describe: 'Pin this object when adding'
     }
   },
 
@@ -188,7 +193,8 @@ module.exports = {
       rawLeaves: argv.rawLeaves,
       onlyHash: argv.onlyHash,
       hashAlg: argv.hash,
-      wrapWithDirectory: argv.wrapWithDirectory
+      wrapWithDirectory: argv.wrapWithDirectory,
+      pin: argv.pin
     }
 
     // Temporary restriction on raw-leaves:
