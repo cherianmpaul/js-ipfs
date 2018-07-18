@@ -1,3 +1,15 @@
+<a name="0.30.1"></a>
+## [0.30.1](https://github.com/ipfs/js-ipfs/compare/v0.30.0...v0.30.1) (2018-07-17)
+
+
+### Bug Fixes
+
+* aegir docs fails if outer funtion is called pin ([#1429](https://github.com/ipfs/js-ipfs/issues/1429)) ([a08a17d](https://github.com/ipfs/js-ipfs/commit/a08a17d))
+* double pre start ([#1437](https://github.com/ipfs/js-ipfs/issues/1437)) ([e6ad63e](https://github.com/ipfs/js-ipfs/commit/e6ad63e))
+* fixing circuit-relaying example ([#1443](https://github.com/ipfs/js-ipfs/issues/1443)) ([a681fc5](https://github.com/ipfs/js-ipfs/commit/a681fc5)), closes [#1423](https://github.com/ipfs/js-ipfs/issues/1423)
+
+
+
 <a name="0.30.0"></a>
 # [0.30.0](https://github.com/ipfs/js-ipfs/compare/v0.29.3...v0.30.0) (2018-07-09)
 
@@ -41,6 +53,19 @@ Signed-off-by: David Dias <mail@daviddias.me>
 License: MIT
 Signed-off-by: Alan Shaw <alan@tableflip.io>
 
+* Git pre-push hook has been removed
+
+  **This only applies to developers that build IPFS from source, not for consumers**
+
+  This can cause problems during installation of npm dependencies, in case the repository
+  is not freshly cloned. Prior to 0.30.0 a pre-push hook has been set up to verify
+  changes before sending them to a remote repository. Due to the removal, existing
+  installations will have dead symlinks that cause `npm install` to fail.
+
+  The migration path is to remove the `pre-hook` file/symlink inside `.git/hooks` of
+  your clone.
+
+  [Read this issue](https://github.com/ipfs/js-ipfs/issues/1444) for more information.
 
 
 <a name="0.29.3"></a>
