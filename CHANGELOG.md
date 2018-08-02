@@ -1,3 +1,38 @@
+<a name="0.31.1"></a>
+## [0.31.1](https://github.com/ipfs/js-ipfs/compare/v0.31.0...v0.31.1) (2018-07-29)
+
+
+### Bug Fixes
+
+* logo link ([a9219ad](https://github.com/ipfs/js-ipfs/commit/a9219ad))
+* XMLHTTPRequest is deprecated and unavailable in service workers ([#1478](https://github.com/ipfs/js-ipfs/issues/1478)) ([7d6f0ca](https://github.com/ipfs/js-ipfs/commit/7d6f0ca))
+
+
+
+<a name="0.31.0"></a>
+# [0.31.0](https://github.com/ipfs/js-ipfs/compare/v0.30.1...v0.31.0) (2018-07-29)
+
+
+### Bug Fixes
+
+* emit boot error only once ([#1472](https://github.com/ipfs/js-ipfs/issues/1472)) ([45b80a0](https://github.com/ipfs/js-ipfs/commit/45b80a0))
+
+
+### Features
+
+* preload content ([#1464](https://github.com/ipfs/js-ipfs/issues/1464)) ([bffe080](https://github.com/ipfs/js-ipfs/commit/bffe080)), closes [#1459](https://github.com/ipfs/js-ipfs/issues/1459)
+* preload on content fetch requests ([#1475](https://github.com/ipfs/js-ipfs/issues/1475)) ([649b755](https://github.com/ipfs/js-ipfs/commit/649b755)), closes [#1473](https://github.com/ipfs/js-ipfs/issues/1473)
+* remove decomissioned bootstrappers ([e3868f4](https://github.com/ipfs/js-ipfs/commit/e3868f4))
+* rm decomissioned bootstrappers - nodejs ([90e9f68](https://github.com/ipfs/js-ipfs/commit/90e9f68))
+* support --raw-leaves ([#1454](https://github.com/ipfs/js-ipfs/issues/1454)) ([1f63e8c](https://github.com/ipfs/js-ipfs/commit/1f63e8c))
+
+
+### Reverts
+
+* docs: add migration note about upgrading from < 0.30.0 ([#1450](https://github.com/ipfs/js-ipfs/issues/1450)) ([#1456](https://github.com/ipfs/js-ipfs/issues/1456)) ([f4344b0](https://github.com/ipfs/js-ipfs/commit/f4344b0))
+
+
+
 <a name="0.30.1"></a>
 ## [0.30.1](https://github.com/ipfs/js-ipfs/compare/v0.30.0...v0.30.1) (2018-07-17)
 
@@ -53,19 +88,6 @@ Signed-off-by: David Dias <mail@daviddias.me>
 License: MIT
 Signed-off-by: Alan Shaw <alan@tableflip.io>
 
-* Git pre-push hook has been removed
-
-  **This only applies to developers that build IPFS from source, not for consumers**
-
-  This can cause problems during installation of npm dependencies, in case the repository
-  is not freshly cloned. Prior to 0.30.0 a pre-push hook has been set up to verify
-  changes before sending them to a remote repository. Due to the removal, existing
-  installations will have dead symlinks that cause `npm install` to fail.
-
-  The migration path is to remove the `pre-hook` file/symlink inside `.git/hooks` of
-  your clone.
-
-  [Read this issue](https://github.com/ipfs/js-ipfs/issues/1444) for more information.
 
 
 <a name="0.29.3"></a>

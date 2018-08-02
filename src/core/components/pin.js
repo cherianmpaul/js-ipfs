@@ -4,7 +4,6 @@
 const promisify = require('promisify-es6')
 const { DAGNode, DAGLink } = require('ipld-dag-pb')
 const CID = require('cids')
-const multihashes = require('multihashes')
 const async = require('async')
 const { Key } = require('interface-datastore')
 
@@ -34,9 +33,9 @@ module.exports = (self) => {
   let recursivePins = new Set()
 
   const directKeys = () =>
-    Array.from(directPins).map(key => multihashes.fromB58String(key))
+    Array.from(directPins).map(key => new CID(key).buffer)
   const recursiveKeys = () =>
-    Array.from(recursivePins).map(key => multihashes.fromB58String(key))
+    Array.from(recursivePins).map(key => new CID(key).buffer)
 
   function getIndirectKeys (callback) {
     const indirectKeys = new Set()
@@ -81,14 +80,14 @@ module.exports = (self) => {
       // the pin-set nodes link to a special 'empty' node, so make sure it exists
       cb => DAGNode.create(Buffer.alloc(0), (err, empty) => {
         if (err) { return cb(err) }
-        dag.put(empty, { cid: new CID(empty.multihash) }, cb)
+        dag.put(empty, { cid: new CID(empty.multihash), preload: false }, cb)
       }),
 
       // create a root node with DAGLinks to the direct and recursive DAGs
       cb => DAGNode.create(Buffer.alloc(0), [dLink, rLink], (err, node) => {
         if (err) { return cb(err) }
         root = node
-        dag.put(root, { cid: new CID(root.multihash) }, cb)
+        dag.put(root, { cid: new CID(root.multihash), preload: false }, cb)
       }),
 
       // hack for CLI tests
@@ -361,7 +360,7 @@ module.exports = (self) => {
         (_, cb) => repo.datastore.has(pinDataStoreKey, cb),
         (has, cb) => has ? cb() : cb(new Error('No pins to load')),
         (cb) => repo.datastore.get(pinDataStoreKey, cb),
-        (mh, cb) => dag.get(new CID(mh), cb)
+        (mh, cb) => dag.get(new CID(mh), '', { preload: false }, cb)
       ], (err, pinRoot) => {
         if (err) {
           if (err.message === 'No pins to load') {

@@ -24,7 +24,15 @@ module.exports = function dag (self) {
 
       options = options.cid ? options : Object.assign({}, optionDefaults, options)
 
-      self._ipld.put(dagNode, options, callback)
+      self._ipld.put(dagNode, options, (err, cid) => {
+        if (err) return callback(err)
+
+        if (options.preload !== false) {
+          self._preload(cid)
+        }
+
+        callback(null, cid)
+      })
     }),
 
     get: promisify((cid, path, options, callback) => {
@@ -56,6 +64,10 @@ module.exports = function dag (self) {
         } catch (err) {
           return callback(err)
         }
+      }
+
+      if (options.preload !== false) {
+        self._preload(cid)
       }
 
       self._ipld.get(cid, path, options, callback)
@@ -92,6 +104,10 @@ module.exports = function dag (self) {
         }
       }
 
+      if (options.preload !== false) {
+        self._preload(cid)
+      }
+
       pull(
         self._ipld.treeStream(cid, path, options),
         pull.collect(callback)
@@ -99,10 +115,17 @@ module.exports = function dag (self) {
     }),
 
     // TODO - use IPLD selectors once they are implemented
-    _getRecursive: promisify((multihash, callback) => {
+    _getRecursive: promisify((multihash, options, callback) => {
       // gets flat array of all DAGNodes in tree given by multihash
 
-      self.dag.get(new CID(multihash), (err, res) => {
+      if (typeof options === 'function') {
+        callback = options
+        options = {}
+      }
+
+      options = options || {}
+
+      self.dag.get(new CID(multihash), '', options, (err, res) => {
         if (err) { return callback(err) }
 
         mapAsync(res.value.links, (link, cb) => {
