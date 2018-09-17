@@ -31,7 +31,7 @@ function createNodes (num, callback) {
   const items = []
   for (let i = 0; i < num; i++) {
     items.push(cb =>
-      createNode(String(i), (err, node) => cb(err, node._multihash))
+      createNode(String(i), (err, node) => cb(err, node.multihash))
     )
   }
 
@@ -67,13 +67,15 @@ describe('pinSet', function () {
     ipfs.stop(done)
   })
 
+  after((done) => repo.teardown(done))
+
   describe('storeItems', function () {
     it('generates a root node with links and hash', function (done) {
       const expectedRootHash = 'QmcLiSTjcjoVC2iuGbk6A2PVcWV3WvjZT4jxfNis1vjyrR'
 
       createNode('data', (err, node) => {
         expect(err).to.not.exist()
-        const nodeHash = node._multihash
+        const nodeHash = node.multihash
         pinSet.storeSet([nodeHash], (err, rootNode) => {
           expect(err).to.not.exist()
           const node = rootNode.toJSON()

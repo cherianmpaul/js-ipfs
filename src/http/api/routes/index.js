@@ -21,4 +21,6 @@ module.exports = (server) => {
   require('./dns')(server)
   require('./key')(server)
   require('./stats')(server)
+  require('./resolve')(server)
+  require('./name')(server)
 }

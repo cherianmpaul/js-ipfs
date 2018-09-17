@@ -17,6 +17,7 @@ const schema = Joi.object().keys({
     Joi.object().keys({ bits: Joi.number().integer() })
   ).allow(null),
   start: Joi.boolean(),
+  local: Joi.boolean(),
   pass: Joi.string().allow(''),
   relay: Joi.object().keys({
     enabled: Joi.boolean(),
@@ -48,9 +49,12 @@ const schema = Joi.object().keys({
     }).allow(null),
     Bootstrap: Joi.array().items(Joi.multiaddr().IPFS().options({ convert: false }))
   }).allow(null),
-  libp2p: Joi.object().keys({
-    modules: Joi.object().allow(null) // TODO: schemas for libp2p modules?
-  }).allow(null)
+  libp2p: Joi.alternatives().try(
+    Joi.func(),
+    Joi.object().keys({
+      modules: Joi.object().allow(null) // TODO: schemas for libp2p modules?
+    })
+  ).allow(null)
 }).options({ allowUnknown: true })
 
 module.exports.validate = (config) => Joi.attempt(config, schema)

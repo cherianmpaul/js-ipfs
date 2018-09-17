@@ -20,6 +20,7 @@ const EventEmitter = require('events')
 const config = require('./config')
 const boot = require('./boot')
 const components = require('./components')
+const IPNS = require('./ipns')
 // replaced by repo-browser when running in the browser
 const defaultRepo = require('./runtime/repo-nodejs')
 const preload = require('./preload')
@@ -86,9 +87,9 @@ class IPFS extends EventEmitter {
     this._bitswap = undefined
     this._blockService = new BlockService(this._repo)
     this._ipld = new Ipld(this._blockService)
-    this._pubsub = undefined
     this._preload = preload(this)
     this._mfsPreload = mfsPreload(this)
+    this._ipns = new IPNS(null, this)
 
     // IPFS Core exposed components
     //   - for booting up a node
@@ -110,6 +111,7 @@ class IPFS extends EventEmitter {
     this.libp2p = components.libp2p(this)
     this.swarm = components.swarm(this)
     this.files = components.files(this)
+    this.name = components.name(this)
     this.bitswap = components.bitswap(this)
     this.pin = components.pin(this)
     this.ping = components.ping(this)
@@ -120,6 +122,7 @@ class IPFS extends EventEmitter {
     this.dns = components.dns(this)
     this.key = components.key(this)
     this.stats = components.stats(this)
+    this.resolve = components.resolve(this)
 
     if (this._options.EXPERIMENTAL.pubsub) {
       this.log('EXPERIMENTAL pubsub is enabled')

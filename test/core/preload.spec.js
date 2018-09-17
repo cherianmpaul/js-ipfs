@@ -13,12 +13,18 @@ chai.use(dirtyChai)
 
 const MockPreloadNode = require('../utils/mock-preload-node')
 const IPFS = require('../../src')
+const createTempRepo = require('../utils/create-repo-nodejs')
 
 describe('preload', () => {
   let ipfs
+  let repo
 
-  before((done) => {
+  before(function (done) {
+    this.timeout(20 * 1000)
+
+    repo = createTempRepo()
     ipfs = new IPFS({
+      repo,
       config: {
         Addresses: {
           Swarm: []
@@ -36,6 +42,8 @@ describe('preload', () => {
   afterEach((done) => MockPreloadNode.clearPreloadCids(done))
 
   after((done) => ipfs.stop(done))
+
+  after((done) => repo.teardown(done))
 
   it('should preload content added with files.add', (done) => {
     ipfs.files.add(Buffer.from(hat()), (err, res) => {
@@ -283,6 +291,49 @@ describe('preload', () => {
       ipfs.dag.get(cid, (err) => {
         expect(err).to.not.exist()
         MockPreloadNode.waitForCids(cid.toBaseEncodedString(), done)
+      })
+    })
+  })
+})
+
+describe('preload disabled', () => {
+  let ipfs
+  let repo
+
+  before(function (done) {
+    this.timeout(20 * 1000)
+
+    repo = createTempRepo()
+    ipfs = new IPFS({
+      repo,
+      config: {
+        Addresses: {
+          Swarm: []
+        }
+      },
+      preload: {
+        enabled: false,
+        addresses: [MockPreloadNode.defaultAddr]
+      }
+    })
+
+    ipfs.on('ready', done)
+  })
+
+  afterEach((done) => MockPreloadNode.clearPreloadCids(done))
+
+  after((done) => ipfs.stop(done))
+
+  after((done) => repo.teardown(done))
+
+  it('should not preload if disabled', (done) => {
+    ipfs.files.add(Buffer.from(hat()), (err, res) => {
+      expect(err).to.not.exist()
+
+      MockPreloadNode.waitForCids(res[0].hash, (err) => {
+        expect(err).to.exist()
+        expect(err.code).to.equal('ERR_TIMEOUT')
+        done()
       })
     })
   })
