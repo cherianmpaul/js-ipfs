@@ -290,7 +290,7 @@ Configure circuit relay (see the [circuit relay tutorial](https://github.com/ipf
 |------|---------|
 | object | `{ enabled: true, addresses: [...] }` |
 
-Configure external nodes that will preload content added to this node.
+Configure remote preload nodes. The remote will preload content added on this node, and also attempt to preload objects requested by this node.
 
 - `enabled` (boolean): Enable content preloading (Default: `true`)
 - `addresses` (array): Multiaddr API addresses of nodes that should preload content. **NOTE:** nodes specified here should also be added to your node's bootstrap address list at [`config.Boostrap`](#optionsconfig).
@@ -900,7 +900,7 @@ Listing of the main packages used in the IPFS ecosystem. There are also three sp
 ### Run tests
 
 ```sh
-# run all the unit tsts
+# run all the unit tests
 > npm test
 
 # run just IPFS tests in Node.js
@@ -917,6 +917,9 @@ Listing of the main packages used in the IPFS ecosystem. There are also three sp
 
 # run just IPFS core tests in the Browser (Chrome)
 > npm run test:browser
+
+# run some interface tests (block API) on Node.js
+> npm run test:node:interface -- --grep '.block'
 ```
 
 ### Run interop tests
