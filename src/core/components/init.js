@@ -4,6 +4,7 @@ const peerId = require('peer-id')
 const waterfall = require('async/waterfall')
 const parallel = require('async/parallel')
 const promisify = require('promisify-es6')
+const defaultsDeep = require('@nodeutils/defaults-deep')
 const defaultConfig = require('../runtime/config-nodejs.js')
 const Keychain = require('libp2p-keychain')
 
@@ -50,7 +51,8 @@ module.exports = function init (self) {
     opts.emptyRepo = opts.emptyRepo || false
     opts.bits = Number(opts.bits) || 2048
     opts.log = opts.log || function () {}
-    const config = defaultConfig()
+
+    const config = defaultsDeep(self._options.config, defaultConfig())
     let privateKey
 
     waterfall([
@@ -96,7 +98,7 @@ module.exports = function init (self) {
         self.log('repo opened')
         if (opts.pass) {
           self.log('creating keychain')
-          const keychainOptions = Object.assign({passPhrase: opts.pass}, config.Keychain)
+          const keychainOptions = Object.assign({ passPhrase: opts.pass }, config.Keychain)
           self._keychain = new Keychain(self._repo.keys, keychainOptions)
           self._keychain.importPeer('self', { privKey: privateKey }, cb)
         } else {

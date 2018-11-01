@@ -25,10 +25,15 @@ module.exports = {
         type: 'boolean',
         default: false
       })
+      .option('local', {
+        desc: 'Run commands locally to the daemon',
+        type: 'boolean',
+        default: false
+      })
   },
 
   handler (argv) {
-    print('Initializing daemon...')
+    print('Initializing IPFS daemon...')
 
     const repoPath = utils.getRepoPath()
 

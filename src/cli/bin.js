@@ -11,7 +11,7 @@ const print = utils.print
 const mfs = require('ipfs-mfs/cli')
 const debug = require('debug')('ipfs:cli')
 
-const pkg = readPkgUp.sync({cwd: __dirname}).pkg
+const pkg = readPkgUp.sync({ cwd: __dirname }).pkg
 updateNotifier({
   pkg,
   updateCheckInterval: 1000 * 60 * 60 * 24 * 7 // 1 week
@@ -30,11 +30,6 @@ const cli = yargs
     desc: 'Pass phrase for the keys',
     type: 'string',
     default: ''
-  })
-  .option('local', {
-    desc: 'Run the command locally, instead of using the daemon',
-    type: 'boolean',
-    default: false
   })
   .epilog(utils.ipfsPathHelp)
   .demandCommand(1)
