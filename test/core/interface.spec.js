@@ -79,15 +79,18 @@ describe('interface-ipfs-core tests', () => {
   })
 
   tests.filesRegular(defaultCommonFactory, {
-    skip: [{
-      name: 'addFromStream',
-      reason: 'TODO: not implemented yet'
-    }, {
+    skip: isNode ? [{
       name: 'addFromFs',
       reason: 'TODO: not implemented yet'
+    }] : [{
+      name: 'addFromStream',
+      reason: 'Not designed to run in the browser'
+    }, {
+      name: 'addFromFs',
+      reason: 'Not designed to run in the browser'
     }, {
       name: 'addFromUrl',
-      reason: 'TODO: not implemented yet'
+      reason: 'Not designed to run in the browser'
     }]
   })
 
@@ -121,6 +124,13 @@ describe('interface-ipfs-core tests', () => {
     spawnOptions: {
       args: ['--pass ipfs-is-awesome-software'],
       initOptions: { bits: 512 }
+    }
+  }))
+
+  tests.namePubsub(CommonFactory.create({
+    spawnOptions: {
+      args: ['--enable-namesys-pubsub'],
+      initOptions: { bits: 1024 }
     }
   }))
 

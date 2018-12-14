@@ -21,6 +21,7 @@ function uriToMultiaddr (uri) {
 }
 
 function HttpApi (repo, config, cliArgs) {
+  cliArgs = cliArgs || {}
   this.node = undefined
   this.server = undefined
 
@@ -67,16 +68,18 @@ function HttpApi (repo, config, cliArgs) {
         try {
           // start the daemon
           this.node = new IPFS({
+            silent: cliArgs.silent,
             repo: repo,
             init: init,
             start: true,
             config: config,
-            local: cliArgs && cliArgs.local,
-            pass: cliArgs && cliArgs.pass,
+            local: cliArgs.local,
+            pass: cliArgs.pass,
             EXPERIMENTAL: {
-              pubsub: cliArgs && cliArgs.enablePubsubExperiment,
-              dht: cliArgs && cliArgs.enableDhtExperiment,
-              sharding: cliArgs && cliArgs.enableShardingExperiment
+              pubsub: cliArgs.enablePubsubExperiment,
+              ipnsPubsub: cliArgs.enableNamesysPubsub,
+              dht: cliArgs.enableDhtExperiment,
+              sharding: cliArgs.enableShardingExperiment
             },
             libp2p: libp2p
           })
@@ -155,9 +158,9 @@ function HttpApi (repo, config, cliArgs) {
         api.info.ma = uriToMultiaddr(api.info.uri)
         gateway.info.ma = uriToMultiaddr(gateway.info.uri)
 
-        console.log('API listening on %s', api.info.ma)
-        console.log('Gateway (read only) listening on %s', gateway.info.ma)
-        console.log('Web UI available at %s', api.info.uri + '/webui')
+        this.node._print('API listening on %s', api.info.ma)
+        this.node._print('Gateway (read only) listening on %s', gateway.info.ma)
+        this.node._print('Web UI available at %s', api.info.uri + '/webui')
 
         // for the CLI to know the where abouts of the API
         this.node._repo.apiAddr.set(api.info.ma, cb)

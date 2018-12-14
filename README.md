@@ -10,9 +10,8 @@
   <a href="http://protocol.ai"><img src="https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat" /></a>
   <a href="http://ipfs.io/"><img src="https://img.shields.io/badge/project-IPFS-blue.svg?style=flat" /></a>
   <a href="http://webchat.freenode.net/?channels=%23ipfs"><img src="https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat" /></a>
-  <br> <a href="https://waffle.io/ipfs/js-ipfs"><img src="https://img.shields.io/badge/pm-waffle-blue.svg?style=flat" /></a>
+  <a href="https://github.com/ipfs/team-mgmt/blob/master/MGMT_JS_CORE_DEV.md"><img src="https://img.shields.io/badge/team-mgmt-blue.svg?style=flat" /></a>
   <a href="https://github.com/ipfs/interface-ipfs-core"><img src="https://img.shields.io/badge/interface--ipfs--core-API%20Docs-blue.svg"></a>
-  <a href="https://github.com/ipfs/interface-ipfs-core/issues/55"><img src="https://img.shields.io/badge/interface--ipfs--core-Updates-blue.svg"></a>
 </p>
 
 <p align="center">
@@ -181,12 +180,10 @@ Commands:
 - default repo location: `~/.jsipfs` (can be changed with env variable `IPFS_PATH`)
 - default swarm port: `4002`
 - default API port: `5002`
-- default Bootstrap is off, to enable it set `IPFS_BOOTSTRAP=1`
-
 
 ### IPFS Daemon
 
-The IPFS Daemon exposes the API defined [`http-api-spec`](https://github.com/ipfs/http-api-spec). You can use any of the IPFS HTTP-API client libraries with it, such as: [js-ipfs-api](https://github.com/ipfs/js-ipfs-api).
+The IPFS Daemon exposes the API defined [`http-api-spec`](https://github.com/ipfs/http-api-spec). You can use any of the IPFS HTTP-API client libraries with it, such as: [js-ipfs-http-client](https://github.com/ipfs/js-ipfs-http-client).
 
 If you want a programmatic way to spawn a IPFS Daemon using JavaScript, check out [ipfsd-ctl module](https://github.com/ipfs/js-ipfsd-ctl)
 
@@ -253,6 +250,14 @@ Instead of a boolean, you may provide an object with custom initialization optio
 - `emptyRepo` (boolean) Whether to remove built-in assets, like the instructional tour and empty mutable file system, from the repo. (Default: `false`)
 - `bits` (number) Number of bits to use in the generated key pair. (Default: `2048`)
 - `privateKey` (string/PeerId) A pre-generated private key to use. Can be either a base64 string or a [PeerId](https://github.com/libp2p/js-peer-id) instance. **NOTE: This overrides `bits`.**
+    ```js
+    // Generating a Peer ID:
+    const PeerId = require('peer-id')
+    PeerId.create({ bits: 2048 }, (err, peerId) => {
+      // Generates a new Peer ID, complete with public/private keypair
+      // See https://github.com/libp2p/js-peer-id
+    })
+    ```
 - `pass` (string) A passphrase to encrypt keys. You should generally use the [top-level `pass` option](#optionspass) instead of the `init.pass` option (this one will take its value from the top-level option if not set).
 
 ##### `options.start`
@@ -270,6 +275,14 @@ Instead of a boolean, you may provide an object with custom initialization optio
 | string | `null` |
 
 A passphrase to encrypt/decrypt your keys.
+
+##### `options.silent`
+
+| Type | Default |
+|------|---------|
+| Boolean | `false` |
+
+Prevents all logging output from the IPFS node.
 
 ##### `options.relay`
 
@@ -304,6 +317,7 @@ Configure remote preload nodes. The remote will preload content added on this no
 Enable and configure experimental features.
 
 - `pubsub` (boolean): Enable libp2p pub-sub. (Default: `false`)
+- `ipnsPubsub` (boolean): Enable pub-sub on IPNS. (Default: `false`)
 - `sharding` (boolean): Enable directory sharding. Directories that have many child objects will be represented by multiple DAG nodes instead of just one. It can improve lookup performance when a directory has several thousand files or more. (Default: `false`)
 - `dht` (boolean): Enable KadDHT. **This is currently not interoperable with `go-ipfs`.**
 
@@ -562,6 +576,9 @@ The core API is grouped into several areas:
 
 - [name](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/NAME.md)
   - [`ipfs.name.publish(value, [options], [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/NAME.md#namepublish)
+  - [`ipfs.name.pubsub.cancel(arg, [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/NAME.md#namepubsubcancel)
+  - [`ipfs.name.pubsub.state([callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/NAME.md#namepubsubstate)
+  - [`ipfs.name.pubsub.subs([callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/NAME.md#namepubsubsubs)
   - [`ipfs.name.resolve(value, [options], [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/NAME.md#nameresolve)
 
 #### Crypto and Key Management
@@ -884,7 +901,7 @@ Listing of the main packages used in the IPFS ecosystem. There are also three sp
 | [`libp2p-crypto`](//github.com/libp2p/js-libp2p-crypto) | [![npm](https://img.shields.io/npm/v/libp2p-crypto.svg?maxAge=86400&style=flat-square)](//github.com/libp2p/js-libp2p-crypto/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-crypto.svg?style=flat-square)](https://david-dm.org/libp2p/js-libp2p-crypto) | [![jenkins](https://ci.ipfs.team/buildStatus/icon?job=libp2p/js-libp2p-crypto/master)](https://ci.ipfs.team/job/libp2p/job/js-libp2p-crypto/job/master/) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-crypto/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-crypto) | [Friedel Ziegelmayer](mailto:dignifiedquire@gmail.com) |
 | [`libp2p-keychain`](//github.com/libp2p/js-libp2p-keychain) | [![npm](https://img.shields.io/npm/v/libp2p-keychain.svg?maxAge=86400&style=flat-square)](//github.com/libp2p/js-libp2p-keychain/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-keychain.svg?style=flat-square)](https://david-dm.org/libp2p/js-libp2p-keychain) | N/A | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-keychain/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-keychain) | [Vasco Santos](mailto:vasco.santos@moxy.studio) |
 | **Generics/Utils** |
-| [`ipfs-api`](//github.com/ipfs/js-ipfs-api) | [![npm](https://img.shields.io/npm/v/ipfs-api.svg?maxAge=86400&style=flat-square)](//github.com/ipfs/js-ipfs-api/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-api.svg?style=flat-square)](https://david-dm.org/ipfs/js-ipfs-api) | [![jenkins](https://ci.ipfs.team/buildStatus/icon?job=ipfs/js-ipfs-api/master)](https://ci.ipfs.team/job/ipfs/job/js-ipfs-api/job/master/) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-api/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-api) | [Alan Shaw](mailto:alan@tableflip.io) |
+| [`ipfs-http-client`](//github.com/ipfs/js-ipfs-http-client) | [![npm](https://img.shields.io/npm/v/ipfs-http-client.svg?maxAge=86400&style=flat-square)](//github.com/ipfs/js-ipfs-http-client/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-http-client.svg?style=flat-square)](https://david-dm.org/ipfs/js-ipfs-http-client) | [![jenkins](https://ci.ipfs.team/buildStatus/icon?job=ipfs/js-ipfs-http-client/master)](https://ci.ipfs.team/job/ipfs/job/js-ipfs-http-client/job/master/) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-http-client/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-http-client) | [Alan Shaw](mailto:alan@tableflip.io) |
 | [`ipfs-multipart`](//github.com/ipfs/ipfs-multipart) | [![npm](https://img.shields.io/npm/v/ipfs-multipart.svg?maxAge=86400&style=flat-square)](//github.com/ipfs/ipfs-multipart/releases) | [![Deps](https://david-dm.org/ipfs/ipfs-multipart.svg?style=flat-square)](https://david-dm.org/ipfs/ipfs-multipart) | N/A | [![codecov](https://codecov.io/gh/ipfs/ipfs-multipart/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/ipfs-multipart) | N/A |
 | [`is-ipfs`](//github.com/ipfs/is-ipfs) | [![npm](https://img.shields.io/npm/v/is-ipfs.svg?maxAge=86400&style=flat-square)](//github.com/ipfs/is-ipfs/releases) | [![Deps](https://david-dm.org/ipfs/is-ipfs.svg?style=flat-square)](https://david-dm.org/ipfs/is-ipfs) | [![jenkins](https://ci.ipfs.team/buildStatus/icon?job=ipfs/is-ipfs/master)](https://ci.ipfs.team/job/ipfs/job/is-ipfs/job/master/) | [![codecov](https://codecov.io/gh/ipfs/is-ipfs/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/is-ipfs) | [Marcin Rataj](mailto:lidel@lidel.org) |
 | [`multihashing`](//github.com/multiformats/js-multihashing) | [![npm](https://img.shields.io/npm/v/multihashing.svg?maxAge=86400&style=flat-square)](//github.com/multiformats/js-multihashing/releases) | [![Deps](https://david-dm.org/multiformats/js-multihashing.svg?style=flat-square)](https://david-dm.org/multiformats/js-multihashing) | [![jenkins](https://ci.ipfs.team/buildStatus/icon?job=multiformats/js-multihashing/master)](https://ci.ipfs.team/job/multiformats/job/js-multihashing/job/master/) | [![codecov](https://codecov.io/gh/multiformats/js-multihashing/branch/master/graph/badge.svg)](https://codecov.io/gh/multiformats/js-multihashing) | N/A |
@@ -996,9 +1013,11 @@ the metrics (in prometheus format) by making a GET request to the following endp
 http://localhost:5002/debug/metrics/prometheus
 ```
 
-### IPFS Core Architecture
+### IPFS Architecture
 
-![](/img/core.png)
+![](/img/architecture.png)
+
+[Annotated version](https://user-images.githubusercontent.com/1211152/47606420-b6265780-da13-11e8-923b-b365a8534e0e.png)j
 
 What does this image explain?
 
@@ -1006,7 +1025,7 @@ What does this image explain?
 - The exchange protocol, `bitswap`, uses the Block Service which in turn uses the Repo, offering a get and put of blocks to the IPFS implementation.
 - The DAG API (previously Object) comes from the IPLD Resolver, it can support several IPLD Formats (i.e: dag-pb, dag-cbor, etc).
 - The Files API uses `ipfs-unixfs-engine` to import and export files to and from IPFS.
-- Swarm, the component that offers a network API, uses libp2p to dial and listen for connections, to use the DHT, for discovery mechanisms, and more. libp2p-ipfs-nodejs is used when running in Node.js and libp2p-ipfs-browser is used when running in the browser.
+- libp2p, the network stack of IPFS, uses libp2p to dial and listen for connections, to use the DHT, for discovery mechanisms, and more.
 
 ## Contribute
 

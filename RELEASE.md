@@ -17,12 +17,11 @@
     - [ ] sharness
   - [ ] Publish a release candidate to npm
       ```sh
-      # Current version is 0.31.7, to publish a release candidate for 0.32.0:
-      npm run build
-      npm version 0.32.0-rc.1
-      # Publish with "next" tag to ensure people still get 0.31.7 when they `npm i ipfs`
-      npm publish --tag next
-      git push origin master v0.32.0-rc.1
+      # Minor prerelease (e.g. 0.33.1 -> 0.34.0-rc.0)
+      $ npx aegir release --type preminor --preid rc --dist-tag next
+      
+      # Increment prerelease (e.g. 0.34.0-rc.0 -> 0.34.0-rc.1)
+      $ npx aegir release --type prerelease --preid rc --dist-tag next
       ```
   - [ ] Run tests of the following projects with the new release:
     - [ ] [ipfs-pubsub-room](https://github.com/ipfs-shipyard/ipfs-pubsub-room)
@@ -35,12 +34,21 @@
   - [ ] Ensure that all the examples run
 - Communication
   - [ ] Create the release issue
+  - [ ] Take a snapshot between of everyone that has contributed to this release (including its subdeps in IPFS, libp2p, IPLD and multiformats) using https://www.npmjs.com/package/name-your-contributors
   - [ ] Announcements (both pre-release and post-release)
     - [ ] Twitter
     - [ ] IRC
     - [ ] Reddit
+    - [ ] [discuss.ipfs.io](https://discuss.ipfs.io/c/announcements)
+    - [ ] Announce it on the [IPFS Users mlist](https://groups.google.com/forum/#!forum/ipfs-users)
   - [ ] Blog post
   - [ ] Copy release notes to the [GitHub Release description](https://github.com/ipfs/js-ipfs/releases)
+
+# ❤️ Huge thank you to everyone that made this release possible
+
+By alphabetical order, here are all the humans that contributed to the release:
+
+- ...
 
 # 🙌🏽 Want to contribute?
 
