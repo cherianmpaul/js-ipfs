@@ -143,6 +143,18 @@ describe('files', () => runOnAndOff((thing) => {
       })
   })
 
+  it('add multiple', function () {
+    this.timeout(30 * 1000)
+
+    return ipfs('add', 'src/init-files/init-docs/readme', 'test/fixtures/odd-name-[v0]/odd name [v1]/hello', '--wrap-with-directory')
+      .then((out) => {
+        expect(out)
+          .to.include('added QmPZ9gcCEpqKTo6aq61g2nXGUhM4iCL3ewB6LDXZCtioEB readme\n')
+        expect(out)
+          .to.include('added QmT78zSuBmuS4z925WZfrqQ1qHaJ56DQaTfyMUF7F8ff5o hello\n')
+      })
+  })
+
   it('add alias', function () {
     this.timeout(30 * 1000)
 
@@ -278,7 +290,7 @@ describe('files', () => runOnAndOff((thing) => {
   it('add --quieter', function () {
     this.timeout(30 * 1000)
 
-    return ipfs('add -Q -w test/fixtures/test-data/hello test/test-data/node.json')
+    return ipfs('add -Q -w test/fixtures/test-data/hello')
       .then((out) => {
         expect(out)
           .to.eql('QmYRMUVULBfj7WrdPESnwnyZmtayN6Sdrwh1nKcQ9QgQeZ\n')
@@ -361,6 +373,15 @@ describe('files', () => runOnAndOff((thing) => {
           expect(mh.decode(cid.multihash).name).to.equal(name)
         })
     })
+  })
+
+  it('should add and print CID encoded in specified base', function () {
+    this.timeout(30 * 1000)
+
+    return ipfs('add test/fixtures/test-data/hello --cid-base=base64')
+      .then((out) => {
+        expect(out).to.eql('added mAXASIEbUSBS5xa8UHDqqt8BdxehE6tX5HxKFiwIeukV2i0wO hello\n')
+      })
   })
 
   it('cat', function () {

@@ -1,6 +1,6 @@
 'use strict'
 
-const mh = require('multihashes')
+const CID = require('cids')
 const multipart = require('ipfs-multipart')
 const debug = require('debug')
 const tar = require('tar-stream')
@@ -15,6 +15,8 @@ const abortable = require('pull-abortable')
 const Joi = require('joi')
 const ndjson = require('pull-ndjson')
 const { PassThrough } = require('readable-stream')
+const multibase = require('multibase')
+const { cidToString } = require('../../../utils/cid')
 
 exports = module.exports
 
@@ -51,7 +53,7 @@ exports.parseKey = (request, reply) => {
   }
 
   try {
-    mh.fromB58String(key)
+    new CID(key) // eslint-disable-line no-new
   } catch (err) {
     log.error(err)
     return reply({
@@ -124,11 +126,11 @@ exports.get = {
 
   // main route handler which is called after the above `parseArgs`, but only if the args were valid
   handler: (request, reply) => {
-    const cid = request.pre.args.key
+    const key = request.pre.args.key
     const ipfs = request.server.app.ipfs
     const pack = tar.pack()
 
-    ipfs.get(cid, (err, filesArray) => {
+    ipfs.get(key, (err, filesArray) => {
       if (err) {
         log.error(err)
         pack.emit('error', err)
@@ -169,6 +171,7 @@ exports.add = {
     query: Joi.object()
       .keys({
         'cid-version': Joi.number().integer().min(0).max(1).default(0),
+        'cid-base': Joi.string().valid(multibase.names),
         'raw-leaves': Joi.boolean(),
         'only-hash': Joi.boolean(),
         pin: Joi.boolean().default(true),
@@ -235,7 +238,7 @@ exports.add = {
       rawLeaves: request.query['raw-leaves'],
       progress: request.query.progress ? progressHandler : null,
       onlyHash: request.query['only-hash'],
-      hashAlg: request.query['hash'],
+      hashAlg: request.query.hash,
       wrapWithDirectory: request.query['wrap-with-directory'],
       pin: request.query.pin,
       chunker: request.query.chunker
@@ -277,7 +280,7 @@ exports.add = {
       pull.map((file) => {
         return {
           Name: file.path, // addPullStream already turned this into a hash if it wanted to
-          Hash: file.hash,
+          Hash: cidToString(file.hash, { base: request.query['cid-base'] }),
           Size: file.size
         }
       }),
@@ -298,16 +301,23 @@ exports.add = {
 }
 
 exports.ls = {
+  validate: {
+    query: Joi.object().keys({
+      'cid-base': Joi.string().valid(multibase.names)
+    }).unknown()
+  },
+
   // uses common parseKey method that returns a `key`
   parseArgs: exports.parseKey,
 
   // main route handler which is called after the above `parseArgs`, but only if the args were valid
   handler: (request, reply) => {
-    const key = request.pre.args.key
+    const { key } = request.pre.args
     const ipfs = request.server.app.ipfs
     const recursive = request.query && request.query.recursive === 'true'
+    const cidBase = request.query['cid-base']
 
-    ipfs.ls(key, { recursive: recursive }, (err, files) => {
+    ipfs.ls(key, { recursive }, (err, files) => {
       if (err) {
         return reply({
           Message: 'Failed to list dir: ' + err.message,
@@ -321,7 +331,7 @@ exports.ls = {
           Hash: key,
           Links: files.map((file) => ({
             Name: file.name,
-            Hash: file.hash,
+            Hash: cidToString(file.hash, { base: cidBase }),
             Size: file.size,
             Type: toTypeCode(file.type),
             Depth: file.depth
