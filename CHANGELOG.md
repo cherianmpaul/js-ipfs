@@ -1,3 +1,82 @@
+<a name="0.34.4"></a>
+## [0.34.4](https://github.com/ipfs/js-ipfs/compare/v0.34.3...v0.34.4) (2019-01-24)
+
+
+### Features
+
+* support _dnslink subdomain specified dnslinks ([#1843](https://github.com/ipfs/js-ipfs/issues/1843)) ([a17253e](https://github.com/ipfs/js-ipfs/commit/a17253e))
+
+
+
+<a name="0.34.3"></a>
+## [0.34.3](https://github.com/ipfs/js-ipfs/compare/v0.34.2...v0.34.3) (2019-01-24)
+
+
+### Bug Fixes
+
+* add cors support for preload-mock-server and update aegir ([#1839](https://github.com/ipfs/js-ipfs/issues/1839)) ([2d45c9d](https://github.com/ipfs/js-ipfs/commit/2d45c9d))
+
+
+
+<a name="0.34.2"></a>
+## [0.34.2](https://github.com/ipfs/js-ipfs/compare/v0.34.1...v0.34.2) (2019-01-21)
+
+
+### Bug Fixes
+
+* race condition causing Database is not open error ([#1834](https://github.com/ipfs/js-ipfs/issues/1834)) ([6066c97](https://github.com/ipfs/js-ipfs/commit/6066c97))
+
+
+### Features
+
+* use ws-star-multi instead of ws-star ([#1793](https://github.com/ipfs/js-ipfs/issues/1793)) ([21fd4d1](https://github.com/ipfs/js-ipfs/commit/21fd4d1))
+
+
+
+<a name="0.34.1"></a>
+## [0.34.1](https://github.com/ipfs/js-ipfs/compare/v0.34.0...v0.34.1) (2019-01-21)
+
+
+### Features
+
+* pipe to add ([#1833](https://github.com/ipfs/js-ipfs/issues/1833)) ([ea53071](https://github.com/ipfs/js-ipfs/commit/ea53071))
+
+
+
+<a name="0.34.0"></a>
+# [0.34.0](https://github.com/ipfs/js-ipfs/compare/v0.34.0-rc.1...v0.34.0) (2019-01-17)
+
+
+
+<a name="0.34.0-rc.1"></a>
+# [0.34.0-rc.1](https://github.com/ipfs/js-ipfs/compare/v0.34.0-rc.0...v0.34.0-rc.1) (2019-01-15)
+
+
+### Bug Fixes
+
+* sharness tests ([#1787](https://github.com/ipfs/js-ipfs/issues/1787)) ([48d3e2b](https://github.com/ipfs/js-ipfs/commit/48d3e2b))
+
+
+### Code Refactoring
+
+* switch to bignumber.js ([#1803](https://github.com/ipfs/js-ipfs/issues/1803)) ([6de6adf](https://github.com/ipfs/js-ipfs/commit/6de6adf))
+
+
+### Features
+
+* update to Web UI v2.3.2 ([#1807](https://github.com/ipfs/js-ipfs/issues/1807)) ([8ca6471](https://github.com/ipfs/js-ipfs/commit/8ca6471))
+* update Web UI to v2.3.0 ([#1786](https://github.com/ipfs/js-ipfs/issues/1786)) ([7bcc496](https://github.com/ipfs/js-ipfs/commit/7bcc496))
+
+
+### BREAKING CHANGES
+
+* All API methods that returned [`big.js`](https://github.com/MikeMcl/big.js/) instances now return [`bignumber.js`](https://github.com/MikeMcl/bignumber.js/) instances.
+
+License: MIT
+Signed-off-by: Alan Shaw <alan.shaw@protocol.ai>
+
+
+
 <a name="0.34.0-rc.0"></a>
 # [0.34.0-rc.0](https://github.com/ipfs/js-ipfs/compare/v0.34.0-pre.0...v0.34.0-rc.0) (2018-12-18)
 

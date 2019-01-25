@@ -2,60 +2,60 @@
 
 const sortBy = require('lodash/sortBy')
 const pull = require('pull-stream')
-const getFolderSize = require('get-folder-size')
+const promisify = require('promisify-es6')
+const getFolderSize = promisify(require('get-folder-size'))
 const byteman = require('byteman')
-const reduce = require('async/reduce')
 const mh = require('multihashes')
 const multibase = require('multibase')
+const toPull = require('stream-to-pull-stream')
 const { print, isDaemonOn, createProgressBar } = require('../utils')
 const { cidToString } = require('../../utils/cid')
 const globSource = require('../../utils/files/glob-source')
 
-function getTotalBytes (paths, cb) {
-  reduce(paths, 0, (total, path, cb) => {
-    getFolderSize(path, (err, size) => {
-      if (err) return cb(err)
-      cb(null, total + size)
-    })
-  }, cb)
+async function getTotalBytes (paths, cb) {
+  const sizes = await Promise.all(paths.map(p => getFolderSize(p)))
+  return sizes.reduce((total, size) => total + size, 0)
 }
 
-function addPipeline (paths, addStream, options) {
-  const {
-    recursive,
-    quiet,
-    quieter,
-    silent
-  } = options
-  pull(
-    globSource(...paths, { recursive }),
-    addStream,
-    pull.collect((err, added) => {
-      if (err) {
-        // Tweak the error message and add more relevant infor for the CLI
-        if (err.code === 'ERR_DIR_NON_RECURSIVE') {
-          err.message = `'${err.path}' is a directory, use the '-r' flag to specify directories`
+function addPipeline (source, addStream, options) {
+  return new Promise((resolve, reject) => {
+    pull(
+      source,
+      addStream,
+      pull.collect((err, added) => {
+        if (err) {
+          // Tweak the error message and add more relevant infor for the CLI
+          if (err.code === 'ERR_DIR_NON_RECURSIVE') {
+            err.message = `'${err.path}' is a directory, use the '-r' flag to specify directories`
+          }
+          return reject(err)
         }
-        throw err
-      }
 
-      if (silent) return
-      if (quieter) return print(added.pop().hash)
+        if (options.silent) return resolve()
 
-      sortBy(added, 'path')
-        .reverse()
-        .map((file) => {
-          const log = [ 'added', cidToString(file.hash, { base: options.cidBase }) ]
-          if (!quiet && file.path.length > 0) log.push(file.path)
-          return log.join(' ')
-        })
-        .forEach((msg) => print(msg))
-    })
-  )
+        if (options.quieter) {
+          print(added.pop().hash)
+          return resolve()
+        }
+
+        sortBy(added, 'path')
+          .reverse()
+          .map((file) => {
+            const log = options.quiet ? [] : ['added']
+            log.push(cidToString(file.hash, { base: options.cidBase }))
+            if (!options.quiet && file.path.length > 0) log.push(file.path)
+            return log.join(' ')
+          })
+          .forEach((msg) => print(msg))
+
+        resolve()
+      })
+    )
+  })
 }
 
 module.exports = {
-  command: 'add <file...>',
+  command: 'add [file...]',
 
   describe: 'Add a file to IPFS using the UnixFS data format',
 
@@ -144,39 +144,45 @@ module.exports = {
   },
 
   handler (argv) {
-    const { ipfs } = argv
-    const options = {
-      strategy: argv.trickle ? 'trickle' : 'balanced',
-      shardSplitThreshold: argv.enableShardingExperiment
-        ? argv.shardSplitThreshold
-        : Infinity,
-      cidVersion: argv.cidVersion,
-      rawLeaves: argv.rawLeaves,
-      onlyHash: argv.onlyHash,
-      hashAlg: argv.hash,
-      wrapWithDirectory: argv.wrapWithDirectory,
-      pin: argv.pin,
-      chunker: argv.chunker
-    }
+    argv.resolve((async () => {
+      const { ipfs } = argv
+      const options = {
+        strategy: argv.trickle ? 'trickle' : 'balanced',
+        shardSplitThreshold: argv.enableShardingExperiment
+          ? argv.shardSplitThreshold
+          : Infinity,
+        cidVersion: argv.cidVersion,
+        rawLeaves: argv.rawLeaves,
+        onlyHash: argv.onlyHash,
+        hashAlg: argv.hash,
+        wrapWithDirectory: argv.wrapWithDirectory,
+        pin: argv.pin,
+        chunker: argv.chunker
+      }
 
-    if (options.enableShardingExperiment && isDaemonOn()) {
-      throw new Error('Error: Enabling the sharding experiment should be done on the daemon')
-    }
+      if (options.enableShardingExperiment && isDaemonOn()) {
+        throw new Error('Error: Enabling the sharding experiment should be done on the daemon')
+      }
 
-    if (!argv.progress) {
-      return addPipeline(argv.file, ipfs.addPullStream(options), argv)
-    }
+      const source = argv.file
+        ? globSource(...argv.file, { recursive: argv.recursive })
+        : toPull.source(process.stdin) // Pipe directly to ipfs.add
 
-    getTotalBytes(argv.file, (err, totalBytes) => {
-      if (err) throw err
+      const adder = ipfs.addPullStream(options)
 
+      // No progress or piping directly to ipfs.add: no need to getTotalBytes
+      if (!argv.progress || !argv.file) {
+        return addPipeline(source, adder, argv)
+      }
+
+      const totalBytes = await getTotalBytes(argv.file)
       const bar = createProgressBar(totalBytes)
 
       options.progress = byteLength => {
         bar.update(byteLength / totalBytes, { progress: byteman(byteLength, 2, 'MB') })
       }
 
-      addPipeline(argv.file, ipfs.addPullStream(options), argv)
-    })
+      return addPipeline(source, adder, argv)
+    })())
   }
 }
