@@ -68,8 +68,7 @@ module.exports = (self) => {
         }
 
         // DHT should be added as routing if we are not running with local flag
-        // TODO: Need to change this logic once DHT is enabled by default, for now fallback to Offline datastore
-        if (get(self._options, 'EXPERIMENTAL.dht', false) && !self._options.local) {
+        if (!self._options.offline) {
           ipnsStores.push(self.libp2p.dht)
         } else {
           const offlineDatastore = new OfflineDatastore(self._repo)
