@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-    <a href="https://ci.ipfs.team/job/ipfs/job/js-ipfs/job/master/"><img src="https://ci.ipfs.team/buildStatus/icon?job=ipfs/js-ipfs/master" /></a>
+  <a href="https://travis-ci.com/ipfs/aegir"><img src="https://flat.badgen.net/travis/ipfs/js-ipfs" /></a>
   <a href="https://codecov.io/gh/ipfs/js-ipfs"><img src="https://codecov.io/gh/ipfs/js-ipfs/branch/master/graph/badge.svg" /></a>
   <a href="https://david-dm.org/ipfs/js-ipfs"><img src="https://david-dm.org/ipfs/js-ipfs.svg?style=flat" /></a>
   <a href="https://github.com/feross/standard"><img src="https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat"></a>
@@ -594,7 +594,7 @@ The core API is grouped into several areas:
   - [`ipfs.bootstrap.add(addr, [options], [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/BOOTSTRAP.md#bootstrapadd)
   - [`ipfs.bootstrap.rm(peer, [options], [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/BOOTSTRAP.md#bootstraprm)
 
-- [dht](https://github.com/ipfs/interface-ipfs-core/tree/master/SPEC/)
+- [dht](https://github.com/ipfs/interface-ipfs-core/tree/master/SPEC/DHT.md)
   - [`ipfs.dht.findPeer(peerId, [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DHT.md#dhtfindpeer)
   - [`ipfs.dht.findProvs(multihash, [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DHT.md#dhtfindprovs)
   - [`ipfs.dht.get(key, [callback])`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/DHT.md#dhtget)

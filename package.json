@@ -1,6 +1,6 @@
 {
   "name": "ipfs",
-  "version": "0.34.4",
+  "version": "0.35.0-pre.0",
   "description": "JavaScript implementation of the IPFS specification",
   "leadMaintainer": "Alan Shaw <alan@tableflip.io>",
   "bin": {
@@ -44,10 +44,7 @@
     "benchmark:browser": "echo \"Error: no benchmarks yet\" && exit 1",
     "release": "aegir release -t node -t browser",
     "release-minor": "aegir release --type minor -t node -t browser",
-    "release-major": "aegir release --type major -t node -t browser",
-    "coverage": "aegir coverage",
-    "coverage-publish": "aegir-coverage publish",
-    "dep-check": "npx dependency-check package.json './test/**/*.js' './src/**/*.js'"
+    "release-major": "aegir release --type major -t node -t browser"
   },
   "repository": {
     "type": "git",
@@ -62,7 +59,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs#readme",
   "devDependencies": {
-    "aegir": "^18.0.3",
+    "aegir": "^18.1.0",
     "chai": "^4.2.0",
     "delay": "^4.1.0",
     "detect-node": "^2.0.4",
@@ -147,7 +144,7 @@
     "mime-types": "^2.1.21",
     "mkdirp": "~0.5.1",
     "multiaddr": "^6.0.0",
-    "multiaddr-to-uri": "^4.0.0",
+    "multiaddr-to-uri": "^4.0.1",
     "multibase": "~0.6.0",
     "multihashes": "~0.4.14",
     "multihashing-async": "~0.5.1",
@@ -175,6 +172,7 @@
     "tar-stream": "^2.0.0",
     "temp": "~0.9.0",
     "update-notifier": "^2.5.0",
+    "uri-to-multiaddr": "^3.0.1",
     "varint": "^5.0.0",
     "yargs": "^12.0.5",
     "yargs-promise": "^1.1.0"
@@ -269,6 +267,7 @@
     "SidHarder <softwarenavigator@gmail.com>",
     "Stephen Whitmore <stephen.whitmore@gmail.com>",
     "Stephen Whitmore <noffle@users.noreply.github.com>",
+    "Steven Allen <steven@stebalien.com>",
     "Terence Pae <terencepae@gmail.com>",
     "Uroš Jurglič <jurglic@gmail.com>",
     "Vasco Santos <vasco.santos@ua.pt>",
