@@ -19,9 +19,12 @@ module.exports = function libp2p (self, config) {
   const libp2p = createBundle({ options, config, datastore, peerInfo, peerBook })
   let discoveredPeers = []
 
+  const noop = () => {}
   const putAndDial = peerInfo => {
-    peerBook.put(peerInfo)
-    libp2p.dial(peerInfo, () => {})
+    peerInfo = peerBook.put(peerInfo)
+    if (!peerInfo.isConnected()) {
+      libp2p.dial(peerInfo, noop)
+    }
   }
 
   libp2p.on('start', () => {
@@ -77,9 +80,9 @@ function defaultBundle ({ datastore, peerInfo, peerBook, options, config }) {
       },
       dht: {
         kBucketSize: get(options, 'dht.kBucketSize', 20),
-        enabled: get(options, 'dht.enabled', true) && !(get(options, 'offline', false)),
+        enabled: get(options, 'offline', false) ? false : undefined, // disable if offline
         randomWalk: {
-          enabled: get(options, 'dht.randomWalk.enabled', true)
+          enabled: false // disabled waiting for https://github.com/libp2p/js-libp2p-kad-dht/issues/86
         },
         validators: {
           ipns: ipnsUtils.validator
@@ -93,7 +96,10 @@ function defaultBundle ({ datastore, peerInfo, peerBook, options, config }) {
       }
     },
     connectionManager: get(options, 'connectionManager',
-      get(config, 'connectionManager', {}))
+      {
+        maxPeers: get(config, 'Swarm.ConnMgr.HighWater'),
+        minPeers: get(config, 'Swarm.ConnMgr.LowWater')
+      })
   }
 
   const libp2pOptions = defaultsDeep(get(options, 'libp2p', {}), libp2pDefaults)

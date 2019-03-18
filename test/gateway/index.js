@@ -12,7 +12,7 @@ const path = require('path')
 const hat = require('hat')
 const fileType = require('file-type')
 
-const bigFile = loadFixture('js/test/fixtures/15mb.random', 'interface-ipfs-core')
+const bigFile = loadFixture('test/fixtures/15mb.random', 'interface-ipfs-core')
 const directoryContent = {
   'index.html': loadFixture('test/gateway/test-folder/index.html'),
   'nested-folder/hello.txt': loadFixture('test/gateway/test-folder/nested-folder/hello.txt'),
@@ -60,7 +60,7 @@ describe('HTTP Gateway', function () {
 
     await http.api.start()
 
-    gateway = http.api._gatewayServer
+    gateway = http.api._gatewayServers[0]
 
     // QmbQD7EMEL1zeebwBsWEfA3ndgSS6F7S6iTuwuqasPgVRi
     await http.api._ipfs.add([

@@ -9,6 +9,7 @@ const os = require('os')
 const path = require('path')
 const hat = require('hat')
 const fs = require('fs')
+const pkg = require('../../package.json')
 
 const skipOnWindows = isWindows() ? it.skip : it
 
@@ -26,7 +27,7 @@ const checkLock = (repo, cb) => {
   cb()
 }
 
-function testSignal (ipfs, sig) {
+function testSignal (ipfs, sig, config) {
   return ipfs('init').then(() => {
     return ipfs('config', 'Addresses', JSON.stringify({
       API: '/ip4/127.0.0.1/tcp/0',
@@ -91,6 +92,66 @@ describe('daemon', () => {
     }).catch(err => done(err))
   })
 
+  it('should allow bind to multiple addresses for API and Gateway', async function () {
+    this.timeout(20 * 1000)
+
+    const apiAddrs = [
+      '/ip4/127.0.0.1/tcp/55001',
+      '/ip4/127.0.0.1/tcp/55002'
+    ]
+
+    const gatewayAddrs = [
+      '/ip4/127.0.0.1/tcp/64080',
+      '/ip4/127.0.0.1/tcp/64081'
+    ]
+
+    await ipfs('init')
+    await ipfs('config', 'Addresses.API', JSON.stringify(apiAddrs), '--json')
+    await ipfs('config', 'Addresses.Gateway', JSON.stringify(gatewayAddrs), '--json')
+
+    const out = await new Promise(resolve => {
+      const res = ipfs('daemon')
+      let out = ''
+
+      res.stdout.on('data', function onData (data) {
+        out += data
+        if (out.includes('Daemon is ready')) {
+          res.stdout.removeListener('data', onData)
+          res.kill()
+          resolve(out)
+        }
+      })
+    })
+
+    apiAddrs.forEach(addr => expect(out).to.include(`API listening on ${addr}`))
+    gatewayAddrs.forEach(addr => expect(out).to.include(`Gateway (read only) listening on ${addr}`))
+  })
+
+  it('should allow no bind addresses for API and Gateway', async function () {
+    this.timeout(20 * 1000)
+
+    await ipfs('init')
+    await ipfs('config', 'Addresses.API', '[]', '--json')
+    await ipfs('config', 'Addresses.Gateway', '[]', '--json')
+
+    const out = await new Promise(resolve => {
+      const res = ipfs('daemon')
+      let out = ''
+
+      res.stdout.on('data', function onData (data) {
+        out += data
+        if (out.includes('Daemon is ready')) {
+          res.stdout.removeListener('data', onData)
+          res.kill()
+          resolve(out)
+        }
+      })
+    })
+
+    expect(out).to.not.include('API listening on')
+    expect(out).to.not.include('Gateway (read only) listening on')
+  })
+
   skipOnWindows('should handle SIGINT gracefully', function (done) {
     this.timeout(100 * 1000)
 
@@ -148,5 +209,27 @@ describe('daemon', () => {
       expect(res).to.have.string('export IPFS_PATH=/path/to/ipfsrepo')
       done()
     })
+  })
+
+  it('should print version info', async () => {
+    await ipfs('init')
+
+    const out = await new Promise(resolve => {
+      const res = ipfs('daemon')
+      let out = ''
+
+      res.stdout.on('data', function onData (data) {
+        out += data
+        if (out.includes('Daemon is ready')) {
+          res.stdout.removeListener('data', onData)
+          res.kill()
+          resolve(out)
+        }
+      })
+    })
+
+    expect(out).to.include(`js-ipfs version: ${pkg.version}`)
+    expect(out).to.include(`System version: ${os.arch()}/${os.platform()}`)
+    expect(out).to.include(`Node.js version: ${process.versions.node}`)
   })
 })
