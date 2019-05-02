@@ -52,13 +52,9 @@ describe('interface-ipfs-core tests', function () {
       initOptions: { bits: 512 }
     }
   }), {
-    skip: isNode ? [
-      // dht.get
-      {
-        name: 'should get a value after it was put on another node',
-        reason: 'Needs https://github.com/ipfs/interface-ipfs-core/pull/383'
-      }
-    ] : true
+    skip: {
+      reason: 'TODO: unskip when DHT is enabled in 0.36'
+    }
   })
 
   tests.filesRegular(defaultCommonFactory, {
@@ -79,7 +75,18 @@ describe('interface-ipfs-core tests', function () {
   tests.key(CommonFactory.create({
     spawnOptions: {
       args: ['--pass ipfs-is-awesome-software'],
-      initOptions: { bits: 512 }
+      initOptions: { bits: 512 },
+      config: {
+        Bootstrap: [],
+        Discovery: {
+          MDNS: {
+            Enabled: false
+          },
+          webRTCStar: {
+            Enabled: false
+          }
+        }
+      }
     }
   }))
 
@@ -90,11 +97,15 @@ describe('interface-ipfs-core tests', function () {
     skip: [
       {
         name: 'should resolve an IPNS DNS link',
-        reason: 'TODO IPNS not implemented yet'
+        reason: 'TODO: IPNS resolve not yet implemented https://github.com/ipfs/js-ipfs/issues/1918'
       },
       {
         name: 'should resolve IPNS link recursively',
-        reason: 'TODO IPNS not implemented yet'
+        reason: 'TODO: IPNS resolve not yet implemented https://github.com/ipfs/js-ipfs/issues/1918'
+      },
+      {
+        name: 'should recursively resolve ipfs.io',
+        reason: 'TODO: ipfs.io dnslink=/ipns/website.ipfs.io & IPNS resolve not yet implemented https://github.com/ipfs/js-ipfs/issues/1918'
       }
     ]
   })
@@ -181,6 +192,18 @@ describe('interface-ipfs-core tests', function () {
             if (typeof config === 'function') {
               cb = config
               config = null
+            }
+
+            config = config || {
+              Bootstrap: [],
+              Discovery: {
+                MDNS: {
+                  Enabled: false
+                },
+                webRTCStar: {
+                  Enabled: false
+                }
+              }
             }
 
             const spawnOptions = { repoPath, config, initOptions: { bits: 512 } }

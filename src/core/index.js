@@ -11,9 +11,10 @@ const multihash = require('multihashes')
 const PeerBook = require('peer-book')
 const multibase = require('multibase')
 const multicodec = require('multicodec')
+const multihashing = require('multihashing-async')
 const CID = require('cids')
 const debug = require('debug')
-const defaultsDeep = require('@nodeutils/defaults-deep')
+const mergeOptions = require('merge-options')
 const EventEmitter = require('events')
 
 const config = require('./config')
@@ -24,40 +25,7 @@ const components = require('./components')
 const defaultRepo = require('./runtime/repo-nodejs')
 const preload = require('./preload')
 const mfsPreload = require('./mfs-preload')
-
-// All known (non-default) IPLD formats
-const IpldFormats = {
-  get 'bitcoin-block' () {
-    return require('ipld-bitcoin')
-  },
-  get 'eth-account-snapshot' () {
-    return require('ipld-ethereum').ethAccountSnapshot
-  },
-  get 'eth-block' () {
-    return require('ipld-ethereum').ethBlock
-  },
-  get 'eth-block-list' () {
-    return require('ipld-ethereum').ethBlockList
-  },
-  get 'eth-state-trie' () {
-    return require('ipld-ethereum').ethStateTrie
-  },
-  get 'eth-storage-trie' () {
-    return require('ipld-ethereum').ethStorageTrie
-  },
-  get 'eth-tx' () {
-    return require('ipld-ethereum').ethTx
-  },
-  get 'eth-tx-trie' () {
-    return require('ipld-ethereum').ethTxTrie
-  },
-  get 'git-raw' () {
-    return require('ipld-git')
-  },
-  get 'zcash-block' () {
-    return require('ipld-zcash')
-  }
-}
+const ipldOptions = require('./runtime/ipld-nodejs')
 
 class IPFS extends EventEmitter {
   constructor (options) {
@@ -78,7 +46,7 @@ class IPFS extends EventEmitter {
 
     options = config.validate(options || {})
 
-    this._options = defaultsDeep(options, defaults)
+    this._options = mergeOptions(defaults, options)
 
     if (options.init === false) {
       this._options.init = false
@@ -105,14 +73,7 @@ class IPFS extends EventEmitter {
     this._peerInfo = undefined
     this._bitswap = undefined
     this._blockService = new BlockService(this._repo)
-    this._ipld = new Ipld({
-      blockService: this._blockService,
-      loadFormat: (codec, callback) => {
-        this.log('Loading IPLD format', codec)
-        if (IpldFormats[codec]) return callback(null, IpldFormats[codec])
-        callback(new Error(`Missing IPLD format "${codec}"`))
-      }
-    })
+    this._ipld = new Ipld(ipldOptions(this._blockService, this._options.ipld, this.log))
     this._preload = preload(this)
     this._mfsPreload = mfsPreload(this)
     this._ipns = undefined
@@ -176,7 +137,9 @@ class IPFS extends EventEmitter {
 
 module.exports = IPFS
 
-Object.assign(module.exports, { crypto, isIPFS, Buffer, CID, multiaddr, multibase, multihash, multicodec, PeerId, PeerInfo })
+// Note: We need to do this to force browserify to load the Buffer module
+const BufferImpl = Buffer
+Object.assign(module.exports, { crypto, isIPFS, Buffer: BufferImpl, CID, multiaddr, multibase, multihash, multihashing, multicodec, PeerId, PeerInfo })
 
 module.exports.createNode = (options) => {
   return new IPFS(options)

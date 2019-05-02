@@ -8,11 +8,12 @@ const expect = chai.expect
 chai.use(dirtyChai)
 
 module.exports = (http) => {
-  describe('/dht', () => {
+  // TODO: unskip when DHT is enabled in 0.36
+  describe.skip('/dht', () => {
     let api
 
     before(() => {
-      api = http.api._apiServers[0]
+      api = http.api._httpApi._apiServers[0]
     })
 
     describe('/findpeer', () => {

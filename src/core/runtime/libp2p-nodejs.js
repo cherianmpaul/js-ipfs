@@ -9,7 +9,7 @@ const KadDHT = require('libp2p-kad-dht')
 const Multiplex = require('libp2p-mplex')
 const SECIO = require('libp2p-secio')
 const libp2p = require('libp2p')
-const defaultsDeep = require('@nodeutils/defaults-deep')
+const mergeOptions = require('merge-options')
 const multiaddr = require('multiaddr')
 
 class Node extends libp2p {
@@ -21,6 +21,13 @@ class Node extends libp2p {
     const wsstar = new WebSocketStarMulti({ servers: wsstarServers, id: _options.peerInfo.id, ignore_no_online: !wsstarServers.length || _options.wsStarIgnoreErrors })
 
     const defaults = {
+      switch: {
+        blacklistTTL: 2 * 60 * 1e3, // 2 minute base
+        blackListAttempts: 5, // back off 5 times
+        maxParallelDials: 150,
+        maxColdCalls: 50,
+        dialTimeout: 10e3 // Be strict with dial time
+      },
       modules: {
         transport: [
           TCP,
@@ -42,6 +49,7 @@ class Node extends libp2p {
       },
       config: {
         peerDiscovery: {
+          autoDial: true,
           mdns: {
             enabled: true
           },
@@ -54,9 +62,9 @@ class Node extends libp2p {
         },
         dht: {
           kBucketSize: 20,
-          enabled: true,
+          enabled: false,
           randomWalk: {
-            enabled: true
+            enabled: false
           }
         },
         EXPERIMENTAL: {
@@ -65,7 +73,7 @@ class Node extends libp2p {
       }
     }
 
-    super(defaultsDeep(_options, defaults))
+    super(mergeOptions(defaults, _options))
   }
 }
 

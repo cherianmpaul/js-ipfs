@@ -1,6 +1,7 @@
 'use strict'
 
 const os = require('os')
+const toUri = require('multiaddr-to-uri')
 const { getRepoPath, print, ipfsPathHelp } = require('../utils')
 
 module.exports = {
@@ -20,6 +21,7 @@ module.exports = {
         default: false
       })
       .option('offline', {
+        type: 'boolean',
         desc: 'Run offline. Do not connect to the rest of the network but provide local API.',
         default: false
       })
@@ -43,8 +45,8 @@ module.exports = {
       const repoPath = getRepoPath()
 
       // Required inline to reduce startup time
-      const HttpApi = require('../../http')
-      const api = new HttpApi({
+      const Daemon = require('../../cli/daemon')
+      const daemon = new Daemon({
         silent: argv.silent,
         repo: process.env.IPFS_PATH,
         offline: argv.offline,
@@ -59,7 +61,16 @@ module.exports = {
       })
 
       try {
-        await api.start()
+        await daemon.start()
+        daemon._httpApi._apiServers.forEach(apiServer => {
+          print(`API listening on ${apiServer.info.ma.toString()}`)
+        })
+        daemon._httpApi._gatewayServers.forEach(gatewayServer => {
+          print(`Gateway (read only) listening on ${gatewayServer.info.ma.toString()}`)
+        })
+        daemon._httpApi._apiServers.forEach(apiServer => {
+          print(`Web UI available at ${toUri(apiServer.info.ma)}/webui`)
+        })
       } catch (err) {
         if (err.code === 'ENOENT' && err.message.match(/uninitialized/i)) {
           print('Error: no initialized ipfs repo found in ' + repoPath)
@@ -73,7 +84,7 @@ module.exports = {
 
       const cleanup = async () => {
         print(`Received interrupt signal, shutting down...`)
-        await api.stop()
+        await daemon.stop()
         process.exit(0)
       }
 

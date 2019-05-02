@@ -18,7 +18,13 @@ describe('interface-ipfs-core over ipfs-http-client tests', () => {
   tests.config(defaultCommonFactory)
 
   tests.dag(defaultCommonFactory, {
-    skip: { reason: 'TODO: DAG HTTP endpoints not implemented in js-ipfs yet!' }
+    skip: [{
+      name: 'should get only a CID, due to resolving locally only',
+      reason: 'Local resolve option is not implemented yet'
+    }, {
+      name: 'tree',
+      reason: 'dag.tree is not implemented yet'
+    }]
   })
 
   tests.dht(CommonFactory.create({
@@ -37,13 +43,9 @@ describe('interface-ipfs-core over ipfs-http-client tests', () => {
       }
     }
   }), {
-    skip: [
-      // dht.get
-      {
-        name: 'should get a value after it was put on another node',
-        reason: 'Needs https://github.com/ipfs/interface-ipfs-core/pull/383'
-      }
-    ]
+    skip: {
+      reason: 'TODO: unskip when DHT is enabled in 0.36'
+    }
   })
 
   tests.filesRegular(defaultCommonFactory)
@@ -53,7 +55,18 @@ describe('interface-ipfs-core over ipfs-http-client tests', () => {
   tests.key(CommonFactory.create({
     spawnOptions: {
       args: ['--pass ipfs-is-awesome-software'],
-      initOptions: { bits: 512 }
+      initOptions: { bits: 512 },
+      config: {
+        Bootstrap: [],
+        Discovery: {
+          MDNS: {
+            Enabled: false
+          },
+          webRTCStar: {
+            Enabled: false
+          }
+        }
+      }
     }
   }))
 
@@ -64,11 +77,15 @@ describe('interface-ipfs-core over ipfs-http-client tests', () => {
     skip: [
       {
         name: 'should resolve an IPNS DNS link',
-        reason: 'TODO IPNS not implemented yet'
+        reason: 'TODO: IPNS resolve not yet implemented https://github.com/ipfs/js-ipfs/issues/1918'
       },
       {
         name: 'should resolve IPNS link recursively',
-        reason: 'TODO IPNS not implemented yet'
+        reason: 'TODO: IPNS resolve not yet implemented https://github.com/ipfs/js-ipfs/issues/1918'
+      },
+      {
+        name: 'should recursively resolve ipfs.io',
+        reason: 'TODO: ipfs.io dnslink=/ipns/website.ipfs.io & IPNS resolve not yet implemented https://github.com/ipfs/js-ipfs/issues/1918'
       }
     ]
   })
@@ -111,6 +128,18 @@ describe('interface-ipfs-core over ipfs-http-client tests', () => {
             if (typeof config === 'function') {
               cb = config
               config = undefined
+            }
+
+            config = config || {
+              Bootstrap: [],
+              Discovery: {
+                MDNS: {
+                  Enabled: false
+                },
+                webRTCStar: {
+                  Enabled: false
+                }
+              }
             }
 
             const spawnOptions = { repoPath, config, initOptions: { bits: 512 } }

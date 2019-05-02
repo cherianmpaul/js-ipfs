@@ -1,7 +1,7 @@
 'use strict'
 
-const get = require('lodash/get')
-const defaultsDeep = require('@nodeutils/defaults-deep')
+const get = require('dlv')
+const mergeOptions = require('merge-options')
 const ipnsUtils = require('../ipns/routing/utils')
 
 module.exports = function libp2p (self, config) {
@@ -17,30 +17,16 @@ module.exports = function libp2p (self, config) {
   const peerInfo = self._peerInfo
   const peerBook = self._peerInfoBook
   const libp2p = createBundle({ options, config, datastore, peerInfo, peerBook })
-  let discoveredPeers = []
 
-  const noop = () => {}
-  const putAndDial = peerInfo => {
-    peerInfo = peerBook.put(peerInfo)
-    if (!peerInfo.isConnected()) {
-      libp2p.dial(peerInfo, noop)
-    }
-  }
+  libp2p.on('stop', () => {
+    // Clear our addresses so we can start clean
+    peerInfo.multiaddrs.clear()
+  })
 
   libp2p.on('start', () => {
     peerInfo.multiaddrs.forEach((ma) => {
       self._print('Swarm listening on', ma.toString())
     })
-    discoveredPeers.forEach(putAndDial)
-    discoveredPeers = []
-  })
-
-  libp2p.on('peer:discovery', (peerInfo) => {
-    if (self.isOnline()) {
-      putAndDial(peerInfo)
-    } else {
-      discoveredPeers.push(peerInfo)
-    }
   })
 
   libp2p.on('peer:connect', peerInfo => peerBook.put(peerInfo))
@@ -70,7 +56,7 @@ function defaultBundle ({ datastore, peerInfo, peerBook, options, config }) {
       },
       relay: {
         enabled: get(options, 'relay.enabled',
-          get(config, 'relay.enabled', false)),
+          get(config, 'relay.enabled', true)),
         hop: {
           enabled: get(options, 'relay.hop.enabled',
             get(config, 'relay.hop.enabled', false)),
@@ -80,7 +66,8 @@ function defaultBundle ({ datastore, peerInfo, peerBook, options, config }) {
       },
       dht: {
         kBucketSize: get(options, 'dht.kBucketSize', 20),
-        enabled: get(options, 'offline', false) ? false : undefined, // disable if offline
+        // enabled: !get(options, 'offline', false), // disable if offline, on by default
+        enabled: false,
         randomWalk: {
           enabled: false // disabled waiting for https://github.com/libp2p/js-libp2p-kad-dht/issues/86
         },
@@ -102,8 +89,7 @@ function defaultBundle ({ datastore, peerInfo, peerBook, options, config }) {
       })
   }
 
-  const libp2pOptions = defaultsDeep(get(options, 'libp2p', {}), libp2pDefaults)
-
+  const libp2pOptions = mergeOptions(libp2pDefaults, get(options, 'libp2p', {}))
   // Required inline to reduce startup time
   // Note: libp2p-nodejs gets replaced by libp2p-browser when webpacked/browserified
   const Node = require('../runtime/libp2p-nodejs')

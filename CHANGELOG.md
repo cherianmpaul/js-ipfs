@@ -1,3 +1,132 @@
+<a name="0.35.0"></a>
+# [0.35.0](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.7...v0.35.0) (2019-04-12)
+
+
+
+<a name="0.35.0-rc.7"></a>
+# [0.35.0-rc.7](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.6...v0.35.0-rc.7) (2019-04-12)
+
+
+### Bug Fixes
+
+* flakey windows test ([#1987](https://github.com/ipfs/js-ipfs/issues/1987)) ([9708c0a](https://github.com/ipfs/js-ipfs/commit/9708c0a))
+* really disable DHT ([#1991](https://github.com/ipfs/js-ipfs/issues/1991)) ([2470be8](https://github.com/ipfs/js-ipfs/commit/2470be8))
+* remove non default ipld formats in the browser ([#1980](https://github.com/ipfs/js-ipfs/issues/1980)) ([4376121](https://github.com/ipfs/js-ipfs/commit/4376121))
+
+
+### BREAKING CHANGES
+
+* Browser application bundles now include only `ipld-dag-pb`, `ipld-dag-cbor` and `ipld-raw` IPLD codecs. Other codecs should be added manually, see https://github.com/ipfs/js-ipfs/blob/master/README.md#optionsipld for details.
+
+* In Node.js `require('ipfs')`
+    * all IPLD formats included
+* In browser application bundle `require('ipfs')` bundled with webpack/browserify/etc.
+    * only `ipld-dag-pb`, `ipld-dag-cbor` and `ipld-raw` included
+* CDN bundle `<script src="https://unpkg.com/ipfs/dist/index.min.js"></script>`
+    * all IPLD formats included
+
+Co-Authored-By: hugomrdias <mail@hugodias.me>
+
+
+
+<a name="0.35.0-rc.6"></a>
+# [0.35.0-rc.6](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.5...v0.35.0-rc.6) (2019-04-11)
+
+
+### Bug Fixes
+
+* avoid logging http errors when its logger is not on ([#1977](https://github.com/ipfs/js-ipfs/issues/1977)) ([20beea2](https://github.com/ipfs/js-ipfs/commit/20beea2))
+
+
+### Features
+
+* recursive dnslink lookups ([#1935](https://github.com/ipfs/js-ipfs/issues/1935)) ([d5a1b89](https://github.com/ipfs/js-ipfs/commit/d5a1b89))
+* use libp2p auto dial ([#1983](https://github.com/ipfs/js-ipfs/issues/1983)) ([7f1fb26](https://github.com/ipfs/js-ipfs/commit/7f1fb26))
+
+
+
+<a name="0.35.0-rc.5"></a>
+# [0.35.0-rc.5](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.4...v0.35.0-rc.5) (2019-04-04)
+
+
+### Bug Fixes
+
+* force browserify to load Buffer module ([#1969](https://github.com/ipfs/js-ipfs/issues/1969)) ([3654e50](https://github.com/ipfs/js-ipfs/commit/3654e50))
+* stop IPNS republisher ASAP ([#1976](https://github.com/ipfs/js-ipfs/issues/1976)) ([68561c8](https://github.com/ipfs/js-ipfs/commit/68561c8))
+* update link for multihashes ([#1975](https://github.com/ipfs/js-ipfs/issues/1975)) ([4a01bf6](https://github.com/ipfs/js-ipfs/commit/4a01bf6))
+
+
+### Features
+
+* expose multihashing-async along with other deps ([#1974](https://github.com/ipfs/js-ipfs/issues/1974)) ([6667966](https://github.com/ipfs/js-ipfs/commit/6667966)), closes [#1973](https://github.com/ipfs/js-ipfs/issues/1973)
+
+
+
+<a name="0.35.0-rc.4"></a>
+# [0.35.0-rc.4](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.3...v0.35.0-rc.4) (2019-03-28)
+
+
+### Bug Fixes
+
+* CLI parsing of --silent arg ([#1955](https://github.com/ipfs/js-ipfs/issues/1955)) ([1c07779](https://github.com/ipfs/js-ipfs/commit/1c07779)), closes [#1947](https://github.com/ipfs/js-ipfs/issues/1947)
+
+
+### Code Refactoring
+
+* swap joi-browser with superstruct ([#1961](https://github.com/ipfs/js-ipfs/issues/1961)) ([8fb5825](https://github.com/ipfs/js-ipfs/commit/8fb5825))
+
+
+### Performance Improvements
+
+* reduce bundle size ([#1959](https://github.com/ipfs/js-ipfs/issues/1959)) ([a3b6235](https://github.com/ipfs/js-ipfs/commit/a3b6235))
+
+
+### BREAKING CHANGES
+
+* Constructor config validation is now a bit more strict - it does not allow `null` values or unknown properties.
+
+
+
+<a name="0.35.0-rc.3"></a>
+# [0.35.0-rc.3](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.2...v0.35.0-rc.3) (2019-03-21)
+
+
+### Bug Fixes
+
+* name resolve arg parsing ([#1958](https://github.com/ipfs/js-ipfs/issues/1958)) ([924690e](https://github.com/ipfs/js-ipfs/commit/924690e))
+
+
+
+<a name="0.35.0-rc.2"></a>
+# [0.35.0-rc.2](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.1...v0.35.0-rc.2) (2019-03-21)
+
+
+
+<a name="0.35.0-rc.1"></a>
+# [0.35.0-rc.1](https://github.com/ipfs/js-ipfs/compare/v0.35.0-rc.0...v0.35.0-rc.1) (2019-03-20)
+
+
+### Bug Fixes
+
+* cat deeply nested file ([#1920](https://github.com/ipfs/js-ipfs/issues/1920)) ([dcb453a](https://github.com/ipfs/js-ipfs/commit/dcb453a))
+* handle subdomains for ipfs.dns ([#1933](https://github.com/ipfs/js-ipfs/issues/1933)) ([29072a5](https://github.com/ipfs/js-ipfs/commit/29072a5))
+* only dial to unconnected peers ([#1914](https://github.com/ipfs/js-ipfs/issues/1914)) ([1478652](https://github.com/ipfs/js-ipfs/commit/1478652))
+
+
+### Features
+
+* add HTTP DAG API ([#1930](https://github.com/ipfs/js-ipfs/issues/1930)) ([a033e8b](https://github.com/ipfs/js-ipfs/commit/a033e8b))
+* display version info when starting daemon ([#1915](https://github.com/ipfs/js-ipfs/issues/1915)) ([6b789ee](https://github.com/ipfs/js-ipfs/commit/6b789ee))
+* provide access to multicodec ([#1921](https://github.com/ipfs/js-ipfs/issues/1921)) ([ceec0bc](https://github.com/ipfs/js-ipfs/commit/ceec0bc)), closes [#1913](https://github.com/ipfs/js-ipfs/issues/1913)
+* **issue-1852:** support multiple API and Gateway addresses ([#1903](https://github.com/ipfs/js-ipfs/issues/1903)) ([4ad104d](https://github.com/ipfs/js-ipfs/commit/4ad104d)), closes [#1852](https://github.com/ipfs/js-ipfs/issues/1852)
+
+
+### Performance Improvements
+
+* lower connection manager limits ([#1926](https://github.com/ipfs/js-ipfs/issues/1926)) ([7926349](https://github.com/ipfs/js-ipfs/commit/7926349))
+
+
+
 <a name="0.35.0-rc.0"></a>
 # [0.35.0-rc.0](https://github.com/ipfs/js-ipfs/compare/v0.35.0-pre.0...v0.35.0-rc.0) (2019-03-06)
 

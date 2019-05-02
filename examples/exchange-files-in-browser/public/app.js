@@ -24,14 +24,18 @@ const $allDisabledButtons = document.querySelectorAll('button:disabled')
 const $allDisabledInputs = document.querySelectorAll('input:disabled')
 const $allDisabledElements = document.querySelectorAll('.disabled')
 
-const FILES = []
-const workspace = location.hash
+// Workspace inputs
+const $workspaceInput = document.querySelector('#workspace-input')
+const $workspaceBtn = document.querySelector('#workspace-btn')
+
+let FILES = []
+let workspace = location.hash
 
 let fileSize = 0
 
 let node
 let info
-let Buffer
+let Buffer = IPFS.Buffer
 
 /* ===========================================================================
    Start the IPFS node
@@ -53,8 +57,6 @@ function start () {
 
     node = new IPFS(options)
 
-    Buffer = node.types.Buffer
-
     node.once('start', () => {
       node.id()
         .then((id) => {
@@ -67,6 +69,8 @@ function start () {
         .catch((error) => onError(error))
 
       subscribeToWorkpsace()
+
+      window.addEventListener('hashchange', workspaceUpdated)
     })
   }
 }
@@ -89,7 +93,23 @@ const messageHandler = (message) => {
 
 const subscribeToWorkpsace = () => {
   node.pubsub.subscribe(workspace, messageHandler)
+    .then(() => {
+      const msg = `Subscribed to workspace ${workspace}`
+      $logs.innerHTML = msg
+    })
     .catch(() => onError('An error occurred when subscribing to the workspace.'))
+}
+
+// unsubscribe from old workspace and re-subscribe to new one
+const workspaceUpdated = () => {
+  node.pubsub.unsubscribe(workspace).then(() => {
+    // clear files from old workspace
+    FILES = []
+    $fileHistory.innerHTML = ''
+
+    workspace = location.hash
+    subscribeToWorkpsace()
+  })
 }
 
 const publishHash = (hash) => {
@@ -329,6 +349,9 @@ const startApplication = () => {
   $dragContainer.addEventListener('dragleave', onDragLeave)
   $fetchButton.addEventListener('click', getFile)
   $connectButton.addEventListener('click', connectToPeer)
+  $workspaceBtn.addEventListener('click', () => {
+    window.location.hash = $workspaceInput.value
+  })
 
   start()
 }
