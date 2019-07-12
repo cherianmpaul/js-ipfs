@@ -30,10 +30,6 @@ We've come a long way, but this project is still in Alpha, lots of development i
 
 **Want to get started?** Check our [examples folder](/examples) to learn how to spawn an IPFS node in Node.js and in the Browser.
 
-You can check the development status at the [Kanban Board](https://waffle.io/ipfs/js-ipfs).
-
-[![Throughput Graph](https://graphs.waffle.io/ipfs/js-ipfs/throughput.svg)](https://waffle.io/ipfs/js-ipfs/metrics/throughput)
-
 **Please read this:** The [DHT](https://en.wikipedia.org/wiki/Distributed_hash_table), a fundamental piece for automatic content and peer discovery is not yet complete. There are multiple applications that can be built without this service but nevertheless it is fundamental to getting that magic IPFS experience. The current status is that implementation is done and merged and we're working on performance issues. Expect the DHT to be available in a release very soon.
 
 [**`Weekly Core Dev Calls`**](https://github.com/ipfs/team-mgmt/issues/650)
@@ -128,15 +124,22 @@ The CLI is available by using the command `jsipfs` in your terminal. This is ali
 Learn how to bundle with browserify and webpack in the [`examples`](https://github.com/ipfs/js-ipfs/tree/master/examples) folder.
 
 
-You can also load it using a `<script>` using the [unpkg](https://unpkg.com) CDN or the [jsDelivr](https://www.jsdelivr.com/package/npm/ipfs) CDN. Inserting one of the following lines will make a `Ipfs` object available in the global namespace.
+You can also load it using a `<script>` using the [unpkg](https://unpkg.com) CDN **or** the [jsDelivr](https://www.jsdelivr.com/package/npm/ipfs) CDN. Inserting one of the following lines will make a `Ipfs` object available in the global namespace.
 
 ```html
-<!-- loading the minified version -->
+<!-- loading the minified version using unpkg -->
 <script src="https://unpkg.com/ipfs/dist/index.min.js"></script>
+
+<!-- loading the human-readable (not minified) version using unpkg -->
+<script src="https://unpkg.com/ipfs/dist/index.js"></script>
+```
+**OR THIS:**
+
+```html
+<!-- loading the minified version using jsDelivr -->
 <script src="https://cdn.jsdelivr.net/npm/ipfs/dist/index.min.js"></script>
 
-<!-- loading the human-readable (not minified) version -->
-<script src="https://unpkg.com/ipfs/dist/index.js"></script>
+<!-- loading the human-readable (not minified) version jsDelivr -->
 <script src="https://cdn.jsdelivr.net/npm/ipfs/dist/index.js"></script>
 ```
 
@@ -325,6 +328,18 @@ Enable and configure experimental features.
 | object |  [`config-nodejs.js`](https://github.com/ipfs/js-ipfs/tree/master/src/core/runtime/config-nodejs.js) in Node.js, [`config-browser.js`](https://github.com/ipfs/js-ipfs/tree/master/src/core/runtime/config-browser.js) in browsers |
 
 Modify the default IPFS node config. This object will be *merged* with the default config; it will not replace it.
+
+###### Configuring Delegate Routers
+
+If you need to support Delegated Content and/or Peer Routing, you can enable it by specifying the multiaddrs of your delegate nodes in the config via `options.config.Addresses.Delegates`. If you need to run a delegate router we encourage you to run your own, with go-ipfs. You can see instructions for doing so in the [delegated routing example](https://github.com/libp2p/js-libp2p/tree/master/examples/delegated-routing).
+
+If you are not able to run your own delegate router nodes, we currently have two nodes that support delegated routing. **Important**: As many people may be leveraging these nodes, performance may be affected, which is why we recommend running your own nodes in production.
+
+Available delegate multiaddrs are:
+- `/dns4/node0.preload.ipfs.io/tcp/443/https`
+- `/dns4/node1.preload.ipfs.io/tcp/443/https`
+
+**Note**: If more than 1 delegate multiaddr is specified, the actual delegate will be randomly selected on startup.
 
 ##### `options.ipld`
 
@@ -925,7 +940,7 @@ The code above assumes you are running a local `signaling server` on port `9090`
 Yes, websocket-star! A WebSockets based transport that uses a Relay to route the messages. To enable it, just do:
 
 ```JavaScript
-const node = new IPFS({
+const node = new Ipfs({
   config: {
     Addresses: {
       Swarm: [
@@ -950,25 +965,8 @@ A way to mitigate this in Chrome, is to run your IPFS node inside a Service Work
 
 Yes you can and in many ways. Read https://github.com/ipfs/notes/issues/256 for the multiple options.
 
-If your [electron-rebuild step is failing](https://github.com/ipfs/js-ipfs/issues/843), all you need to do is:
-
-```bash
-# Electron's version.
-export npm_config_target=2.0.0
-# The architecture of Electron, can be ia32 or x64.
-export npm_config_arch=x64
-export npm_config_target_arch=x64
-# Download headers for Electron.
-export npm_config_disturl=https://atom.io/download/electron
-# Tell node-pre-gyp that we are building for Electron.
-export npm_config_runtime=electron
-# Tell node-pre-gyp to build module from source code.
-export npm_config_build_from_source=true
-# Install all dependencies, and store cache to ~/.electron-gyp.
-HOME=~/.electron-gyp npm install
-```
-
-If you find any other issue, please check the [`Electron Support` issue](https://github.com/ipfs/js-ipfs/issues/843).
+We now support Electron v5.0.0 without the need to rebuilt native modules.
+Still if you run into problems with native modules follow these instructions [here](https://electronjs.org/docs/tutorial/using-native-node-modules).
 
 #### Have more questions?
 
@@ -1029,20 +1027,20 @@ Listing of the main packages used in the IPFS ecosystem. There are also three sp
 | [`ipfs-repo`](//github.com/ipfs/js-ipfs-repo) | [![npm](https://img.shields.io/npm/v/ipfs-repo.svg?maxAge=86400&style=flat)](//github.com/ipfs/js-ipfs-repo/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-repo.svg?style=flat)](https://david-dm.org/ipfs/js-ipfs-repo) | [![Travis CI](https://travis-ci.com/ipfs/js-ipfs-repo.svg?branch=master)](https://travis-ci.com/ipfs/js-ipfs-repo) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-repo/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-repo) | [Jacob Heun](mailto:jacobheun@gmail.com) |
 | **Exchange** |
 | [`ipfs-block-service`](//github.com/ipfs/js-ipfs-block-service) | [![npm](https://img.shields.io/npm/v/ipfs-block-service.svg?maxAge=86400&style=flat)](//github.com/ipfs/js-ipfs-block-service/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-block-service.svg?style=flat)](https://david-dm.org/ipfs/js-ipfs-block-service) | [![Travis CI](https://travis-ci.com/ipfs/js-ipfs-block-service.svg?branch=master)](https://travis-ci.com/ipfs/js-ipfs-block-service) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-block-service/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-block-service) | [Volker Mische](mailto:volker.mische@gmail.com) |
-| [`ipfs-bitswap`](//github.com/ipfs/js-ipfs-bitswap) | [![npm](https://img.shields.io/npm/v/ipfs-bitswap.svg?maxAge=86400&style=flat)](//github.com/ipfs/js-ipfs-bitswap/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-bitswap.svg?style=flat)](https://david-dm.org/ipfs/js-ipfs-bitswap) | [![Travis CI](https://travis-ci.com/ipfs/js-ipfs-bitswap.svg?branch=master)](https://travis-ci.com/ipfs/js-ipfs-bitswap) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-bitswap/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-bitswap) | [Volker Mische](mailto:volker.mische@gmail.com) |
+| [`ipfs-bitswap`](//github.com/ipfs/js-ipfs-bitswap) | [![npm](https://img.shields.io/npm/v/ipfs-bitswap.svg?maxAge=86400&style=flat)](//github.com/ipfs/js-ipfs-bitswap/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-bitswap.svg?style=flat)](https://david-dm.org/ipfs/js-ipfs-bitswap) | [![Travis CI](https://travis-ci.com/ipfs/js-ipfs-bitswap.svg?branch=master)](https://travis-ci.com/ipfs/js-ipfs-bitswap) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-bitswap/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-bitswap) | [Dirk McCormick](mailto:dirk@protocol.ai) |
 | **libp2p** |
 | [`libp2p`](//github.com/libp2p/js-libp2p) | [![npm](https://img.shields.io/npm/v/libp2p.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p) | [Jacob Heun](mailto:jacobheun@gmail.com) |
 | [`libp2p-circuit`](//github.com/libp2p/js-libp2p-circuit) | [![npm](https://img.shields.io/npm/v/libp2p-circuit.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-circuit/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-circuit.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-circuit) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-circuit.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-circuit) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-circuit/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-circuit) | [Jacob Heun](mailto:jacobheun@gmail.com) |
 | [`libp2p-floodsub`](//github.com/libp2p/js-libp2p-floodsub) | [![npm](https://img.shields.io/npm/v/libp2p-floodsub.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-floodsub/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-floodsub.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-floodsub) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-floodsub.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-floodsub) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-floodsub/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-floodsub) | [Vasco Santos](mailto:vasco.santos@moxy.studio) |
 | [`libp2p-kad-dht`](//github.com/libp2p/js-libp2p-kad-dht) | [![npm](https://img.shields.io/npm/v/libp2p-kad-dht.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-kad-dht/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-kad-dht.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-kad-dht) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-kad-dht.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-kad-dht) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-kad-dht/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-kad-dht) | [Vasco Santos](mailto:vasco.santos@moxy.studio) |
 | [`libp2p-mdns`](//github.com/libp2p/js-libp2p-mdns) | [![npm](https://img.shields.io/npm/v/libp2p-mdns.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-mdns/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-mdns.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-mdns) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-mdns.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-mdns) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-mdns/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-mdns) | [Jacob Heun](mailto:jacobheun@gmail.com) |
-| [`libp2p-mplex`](//github.com/libp2p/js-libp2p-mplex) | [![npm](https://img.shields.io/npm/v/libp2p-mplex.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-mplex/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-mplex.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-mplex) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-mplex.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-mplex) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-mplex/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-mplex) | [Vasco Santos](mailto:vasco.santos@moxy.studio) |
 | [`libp2p-bootstrap`](//github.com/libp2p/js-libp2p-bootstrap) | [![npm](https://img.shields.io/npm/v/libp2p-bootstrap.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-bootstrap/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-bootstrap.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-bootstrap) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-bootstrap.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-bootstrap) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-bootstrap/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-bootstrap) | [Vasco Santos](mailto:vasco.santos@moxy.studio) |
 | [`libp2p-secio`](//github.com/libp2p/js-libp2p-secio) | [![npm](https://img.shields.io/npm/v/libp2p-secio.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-secio/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-secio.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-secio) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-secio.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-secio) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-secio/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-secio) | [Friedel Ziegelmayer](mailto:dignifiedquire@gmail.com) |
 | [`libp2p-tcp`](//github.com/libp2p/js-libp2p-tcp) | [![npm](https://img.shields.io/npm/v/libp2p-tcp.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-tcp/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-tcp.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-tcp) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-tcp.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-tcp) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-tcp/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-tcp) | [Jacob Heun](mailto:jacobheun@gmail.com) |
 | [`libp2p-webrtc-star`](//github.com/libp2p/js-libp2p-webrtc-star) | [![npm](https://img.shields.io/npm/v/libp2p-webrtc-star.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-webrtc-star/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-webrtc-star.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-webrtc-star) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-webrtc-star.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-webrtc-star) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-webrtc-star/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-webrtc-star) | [Vasco Santos](mailto:vasco.santos@moxy.studio) |
 | [`libp2p-websocket-star`](//github.com/libp2p/js-libp2p-websocket-star) | [![npm](https://img.shields.io/npm/v/libp2p-websocket-star.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-websocket-star/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-websocket-star.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-websocket-star) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-websocket-star.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-websocket-star) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-websocket-star/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-websocket-star) | [Jacob Heun](mailto:jacobheun@gmail.com) |
 | [`libp2p-websockets`](//github.com/libp2p/js-libp2p-websockets) | [![npm](https://img.shields.io/npm/v/libp2p-websockets.svg?maxAge=86400&style=flat)](//github.com/libp2p/js-libp2p-websockets/releases) | [![Deps](https://david-dm.org/libp2p/js-libp2p-websockets.svg?style=flat)](https://david-dm.org/libp2p/js-libp2p-websockets) | [![Travis CI](https://travis-ci.com/libp2p/js-libp2p-websockets.svg?branch=master)](https://travis-ci.com/libp2p/js-libp2p-websockets) | [![codecov](https://codecov.io/gh/libp2p/js-libp2p-websockets/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/js-libp2p-websockets) | [Jacob Heun](mailto:jacobheun@gmail.com) |
+| [`pull-mplex`](//github.com/libp2p/pull-mplex) | [![npm](https://img.shields.io/npm/v/pull-mplex.svg?maxAge=86400&style=flat)](//github.com/libp2p/pull-mplex/releases) | [![Deps](https://david-dm.org/libp2p/pull-mplex.svg?style=flat)](https://david-dm.org/libp2p/pull-mplex) | [![Travis CI](https://travis-ci.com/libp2p/pull-mplex.svg?branch=master)](https://travis-ci.com/libp2p/pull-mplex) | [![codecov](https://codecov.io/gh/libp2p/pull-mplex/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/pull-mplex) | [Jacob Heun](mailto:jacobheun@gmail.com) |
 | **Data Types** |
 | [`ipfs-block`](//github.com/ipfs/js-ipfs-block) | [![npm](https://img.shields.io/npm/v/ipfs-block.svg?maxAge=86400&style=flat)](//github.com/ipfs/js-ipfs-block/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-block.svg?style=flat)](https://david-dm.org/ipfs/js-ipfs-block) | [![Travis CI](https://travis-ci.com/ipfs/js-ipfs-block.svg?branch=master)](https://travis-ci.com/ipfs/js-ipfs-block) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-block/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-block) | [Volker Mische](mailto:volker.mische@gmail.com) |
 | [`ipfs-unixfs`](//github.com/ipfs/js-ipfs-unixfs) | [![npm](https://img.shields.io/npm/v/ipfs-unixfs.svg?maxAge=86400&style=flat)](//github.com/ipfs/js-ipfs-unixfs/releases) | [![Deps](https://david-dm.org/ipfs/js-ipfs-unixfs.svg?style=flat)](https://david-dm.org/ipfs/js-ipfs-unixfs) | [![Travis CI](https://travis-ci.com/ipfs/js-ipfs-unixfs.svg?branch=master)](https://travis-ci.com/ipfs/js-ipfs-unixfs) | [![codecov](https://codecov.io/gh/ipfs/js-ipfs-unixfs/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs/js-ipfs-unixfs) | [Alex Potsides](mailto:alex.potsides@protocol.ai) |

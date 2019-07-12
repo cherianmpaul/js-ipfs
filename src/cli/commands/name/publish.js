@@ -1,7 +1,5 @@
 'use strict'
 
-const print = require('../../utils').print
-
 module.exports = {
   command: 'publish <ipfsPath>',
 
@@ -11,21 +9,25 @@ module.exports = {
     resolve: {
       alias: 'r',
       describe: 'Resolve given path before publishing. Default: true.',
-      default: true
+      default: true,
+      type: 'boolean'
     },
     lifetime: {
       alias: 't',
       describe: 'Time duration that the record will be valid for. Default: 24h.',
-      default: '24h'
+      default: '24h',
+      type: 'string'
     },
     key: {
       alias: 'k',
-      describe: 'Name of the key to be used or a valid PeerID, as listed by "ipfs key list -l". Default: self.',
-      default: 'self'
+      describe: 'Name of the key to be used, as listed by "ipfs key list -l". Default: self.',
+      default: 'self',
+      type: 'string'
     },
     ttl: {
       describe: 'Time duration this record should be cached for (caution: experimental).',
-      default: ''
+      default: '',
+      type: 'string'
     }
   },
 
@@ -33,14 +35,8 @@ module.exports = {
     argv.resolve((async () => {
       // yargs-promise adds resolve/reject properties to argv
       // resolve should use the alias as resolve will always be overwritten to a function
-      let resolve = true
-
-      if (argv.r === false || argv.r === 'false') {
-        resolve = false
-      }
-
       const opts = {
-        resolve,
+        resolve: argv.r,
         lifetime: argv.lifetime,
         key: argv.key,
         ttl: argv.ttl
@@ -48,7 +44,7 @@ module.exports = {
 
       const ipfs = await argv.getIpfs()
       const result = await ipfs.name.publish(argv.ipfsPath, opts)
-      print(`Published to ${result.name}: ${result.value}`)
+      argv.print(`Published to ${result.name}: ${result.value}`)
     })())
   }
 }

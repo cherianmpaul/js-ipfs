@@ -1,7 +1,5 @@
 'use strict'
 
-const print = require('../../utils').print
-
 module.exports = {
   command: 'resolve [<name>]',
 
@@ -17,8 +15,8 @@ module.exports = {
     recursive: {
       type: 'boolean',
       alias: 'r',
-      describe: 'Resolve until the result is not an IPNS name. Default: false.',
-      default: false
+      describe: 'Resolve until the result is not an IPNS name. Default: true.',
+      default: true
     }
   },
 
@@ -32,11 +30,7 @@ module.exports = {
       const ipfs = await argv.getIpfs()
       const result = await ipfs.name.resolve(argv.name, opts)
 
-      if (result && result.path) {
-        print(result.path)
-      } else {
-        print(result)
-      }
+      argv.print(result)
     })())
   }
 }

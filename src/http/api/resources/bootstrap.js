@@ -1,7 +1,7 @@
 'use strict'
 
 const multiaddr = require('multiaddr')
-const Boom = require('boom')
+const Boom = require('@hapi/boom')
 
 exports.list = async (request, h) => {
   const { ipfs } = request.server.app
@@ -24,8 +24,6 @@ exports.add = {
         throw Boom.badRequest('Not a valid multiaddr')
       }
     }
-
-    console.log('parseArgs', { default: def })
 
     return { default: def }
   },
